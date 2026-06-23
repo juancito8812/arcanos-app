@@ -113,7 +113,7 @@ class _Card extends StatelessWidget {
                   child: SizedBox(
                     width: double.infinity,
                     child: Image.asset(
-                  'assets/cards/arcano_\${arcano.numero}.png',
+                  'assets/cards/arcano_${arcano.numero}.png',
                   fit: BoxFit.cover,
                   errorBuilder: (c, e, s) => Container(
                     decoration: BoxDecoration(

@@ -89,7 +89,7 @@ class _PosCard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: Image.asset(
-              'assets/cards/arcano_\${pos.arcano.numero}.png',
+              'assets/cards/arcano_${pos.arcano.numero}.png',
               width: 55, height: 80, fit: BoxFit.cover,
               errorBuilder: (c, e, s) => Container(
                 width: 55, height: 80,
