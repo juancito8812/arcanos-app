@@ -37,16 +37,23 @@ class _PosCard extends StatelessWidget {
     final arc = getArcanoByNumero(pos.arcano.numero);
     return Card(margin: const EdgeInsets.only(bottom: 12), child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [
-        Container(width: 48, height: 48, decoration: BoxDecoration(gradient: const LinearGradient(colors: [AppTheme.purplePrimary, AppTheme.purpleDark], begin: Alignment.topLeft, end: Alignment.bottomRight), borderRadius: BorderRadius.circular(12)),
-          child: Center(child: Text('${pos.posicion}', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)))),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.asset('assets/cards/arcano_${pos.arcano.numero}.png',
+            width: 55, height: 80, fit: BoxFit.cover,
+            errorBuilder: (c, e, s) => Container(width: 55, height: 80,
+              decoration: BoxDecoration(gradient: const LinearGradient(colors: [AppTheme.purplePrimary, AppTheme.purpleDark], begin: Alignment.topLeft, end: Alignment.bottomRight), borderRadius: BorderRadius.circular(8)),
+              child: Center(child: Text(pos.arcano.nombreRomano, style: const TextStyle(color: AppTheme.goldAccent, fontSize: 16, fontWeight: FontWeight.bold)))),
+          ),
+        ),
         const SizedBox(width: 12),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(pos.nombre, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.purplePrimary)),
           Text('Edad: ${pos.edadPeriodo}', style: TextStyle(fontSize: 12, color: Colors.grey[500])),
         ])),
-        Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(color: AppTheme.goldAccent.withAlpha(30), borderRadius: BorderRadius.circular(20), border: Border.all(color: AppTheme.goldAccent.withAlpha(100))),
-          child: Text(pos.arcano.nombreCompleto, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.purplePrimary))),
+        Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(color: AppTheme.goldAccent.withAlpha(30), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppTheme.goldAccent.withAlpha(100))),
+          child: Text('${pos.posicion}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.purplePrimary))),
       ]),
       const SizedBox(height: 12),
       Text(pos.significado, style: TextStyle(fontSize: 13, color: Colors.grey[700], height: 1.4)),

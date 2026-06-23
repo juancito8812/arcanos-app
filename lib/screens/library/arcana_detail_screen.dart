@@ -11,17 +11,24 @@ class ArcanaDetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(arcano.nombre)),
       body: SingleChildScrollView(padding: const EdgeInsets.all(16), child: Column(children: [
-        Container(width: double.infinity, padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(gradient: const LinearGradient(colors: [AppTheme.purplePrimary, AppTheme.purpleDark], begin: Alignment.topLeft, end: Alignment.bottomRight),
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [BoxShadow(color: AppTheme.purplePrimary.withAlpha(80), blurRadius: 20, spreadRadius: 2)]),
-          child: Column(children: [
-            Container(width: 80, height: 80, decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: AppTheme.goldAccent, width: 3)),
-              child: Center(child: Text(arcano.nombreRomano, style: const TextStyle(color: AppTheme.goldAccent, fontSize: 28, fontWeight: FontWeight.bold)))),
-            const SizedBox(height: 16),
-            Text(arcano.nombre, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
-            Text(arcano.arquetipo, style: TextStyle(fontSize: 14, color: Colors.white.withAlpha(200), fontStyle: FontStyle.italic)),
-          ])),
+        // Card image
+        ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Image.asset(
+            'assets/cards/arcano_${arcano.numero}.png',
+            width: 180, height: 260, fit: BoxFit.cover,
+            errorBuilder: (c, e, s) => Container(
+              width: 180, height: 260,
+              decoration: BoxDecoration(gradient: const LinearGradient(colors: [AppTheme.purplePrimary, AppTheme.purpleDark], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [BoxShadow(color: AppTheme.purplePrimary.withAlpha(80), blurRadius: 20)]),
+              child: Center(child: Text(arcano.nombreRomano, style: const TextStyle(color: AppTheme.goldAccent, fontSize: 32, fontWeight: FontWeight.bold))),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(arcano.nombre, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.purplePrimary)),
+        Text(arcano.arquetipo, style: TextStyle(fontSize: 14, color: Colors.grey[600], fontStyle: FontStyle.italic)),
         const SizedBox(height: 20),
         _Sec(title: 'Ley Espiritual', content: arcano.leyEspiritual),
         const SizedBox(height: 12),

@@ -27,7 +27,7 @@ class _ArcanaLibraryScreenState extends State<ArcanaLibraryScreen> {
           decoration: InputDecoration(hintText: 'Buscar...', prefixIcon: const Icon(Icons.search), suffixIcon: _query.isNotEmpty ? IconButton(icon: const Icon(Icons.clear), onPressed: () => setState(() => _query = '')) : null))),
         Expanded(child: GridView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 12),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 0.75, crossAxisSpacing: 10, mainAxisSpacing: 10),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 0.65, crossAxisSpacing: 10, mainAxisSpacing: 10),
           itemCount: _filtered.length,
           itemBuilder: (context, i) => _Card(arcano: _filtered[i]),
         )),
@@ -44,13 +44,22 @@ class _Card extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(child: InkWell(borderRadius: BorderRadius.circular(16),
       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ArcanaDetailScreen(arcano: arcano))),
-      child: Padding(padding: const EdgeInsets.all(12), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Container(width: 56, height: 56, decoration: BoxDecoration(shape: BoxShape.circle,
-          gradient: const LinearGradient(colors: [AppTheme.purplePrimary, AppTheme.purpleDark], begin: Alignment.topLeft, end: Alignment.bottomRight),
-          boxShadow: [BoxShadow(color: AppTheme.purplePrimary.withAlpha(60), blurRadius: 10, spreadRadius: 1)]),
-          child: Center(child: Text(arcano.nombreRomano, style: const TextStyle(color: AppTheme.goldAccent, fontSize: 20, fontWeight: FontWeight.bold)))),
-        const SizedBox(height: 10),
-        Text(arcano.nombre, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppTheme.purplePrimary)),
+      child: Padding(padding: const EdgeInsets.all(8), child: Column(children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.asset(
+            'assets/cards/arcano_${arcano.numero}.png',
+            width: 120, height: 170, fit: BoxFit.cover,
+            errorBuilder: (c, e, s) => Container(
+              width: 120, height: 170,
+              decoration: BoxDecoration(gradient: const LinearGradient(colors: [AppTheme.purplePrimary, AppTheme.purpleDark], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                borderRadius: BorderRadius.circular(8)),
+              child: Center(child: Text(arcano.nombreRomano, style: const TextStyle(color: AppTheme.goldAccent, fontSize: 24, fontWeight: FontWeight.bold))),
+            ),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(arcano.nombre, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.purplePrimary)),
       ]))));
   }
 }

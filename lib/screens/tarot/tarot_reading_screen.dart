@@ -76,11 +76,16 @@ class _CardWidget extends StatelessWidget {
       ]),
       const SizedBox(height: 12),
       Row(children: [
-        Container(width: 60, height: 85,
-          decoration: BoxDecoration(gradient: const LinearGradient(colors: [AppTheme.purplePrimary, AppTheme.purpleDark], begin: Alignment.topLeft, end: Alignment.bottomRight),
-            borderRadius: BorderRadius.circular(8), border: Border.all(color: AppTheme.goldAccent.withAlpha(100), width: 1.5),
-            boxShadow: [BoxShadow(color: AppTheme.purplePrimary.withAlpha(50), blurRadius: 8)]),
-          child: Center(child: Text(arcano.nombreRomano, style: const TextStyle(color: AppTheme.goldAccent, fontSize: 18, fontWeight: FontWeight.bold)))),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.asset('assets/cards/arcano_${arcano.numero}.png',
+            width: 65, height: 95, fit: BoxFit.cover,
+            errorBuilder: (c, e, s) => Container(width: 65, height: 95,
+              decoration: BoxDecoration(gradient: const LinearGradient(colors: [AppTheme.purplePrimary, AppTheme.purpleDark], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                borderRadius: BorderRadius.circular(8)),
+              child: Center(child: Text(arcano.nombreRomano, style: const TextStyle(color: AppTheme.goldAccent, fontSize: 18, fontWeight: FontWeight.bold)))),
+          ),
+        ),
         const SizedBox(width: 12),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(arcano.nombreCompleto, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppTheme.purplePrimary)),
