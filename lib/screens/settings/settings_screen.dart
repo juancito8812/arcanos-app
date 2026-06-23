@@ -8,7 +8,7 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Configuracion')),
+      appBar: AppBar(title: const Text('Configuración')),
       body: ListView(padding: const EdgeInsets.all(16), children: [
         Container(padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(gradient: const LinearGradient(colors: [AppTheme.purplePrimary, AppTheme.purpleDark], begin: Alignment.topLeft, end: Alignment.bottomRight), borderRadius: BorderRadius.circular(20)),
@@ -28,8 +28,10 @@ class SettingsScreen extends StatelessWidget {
         _Card(title: 'Gestion de Datos', icon: Icons.storage,
           child: TextButton.icon(onPressed: () => _borrar(context), icon: const Icon(Icons.delete_forever, color: Colors.red), label: const Text('Limpiar datos', style: TextStyle(color: Colors.red)))),
         const SizedBox(height: 12),
-        _Card(title: 'Creditos', icon: Icons.favorite,
-          child: const Text('(c) Psic. Blanca E. Siso M. - Bienestar Integral y Crecimiento Personal', textAlign: TextAlign.center)),
+        _Card(title: 'Créditos', icon: Icons.favorite,
+          child: const Center(
+            child: Text('(c) Psic. Blanca E. Siso M. - Bienestar Integral y Crecimiento Personal', textAlign: TextAlign.center),
+          )),
       ]),
     );
   }
@@ -37,9 +39,17 @@ class SettingsScreen extends StatelessWidget {
   void _borrar(BuildContext c) {
     showDialog(context: c, builder: (ctx) => AlertDialog(
       title: const Text('Limpiar Datos'),
-      content: const Text('Se eliminaran todos los datos almacenados.'),
+      content: const Text('Se eliminarán todos los datos almacenados.'),
       actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancelar')),
-        TextButton(onPressed: () async { await DatabaseService.deleteDatabase(); if (ctx.mounted) Navigator.pop(ctx); }, child: const Text('Eliminar', style: TextStyle(color: Colors.red)))],
+        TextButton(onPressed: () async {
+          Navigator.pop(ctx);
+          await DatabaseService.deleteDatabase();
+          if (c.mounted) {
+            ScaffoldMessenger.of(c).showSnackBar(
+              const SnackBar(content: Text('Datos eliminados correctamente')),
+            );
+          }
+        }, child: const Text('Eliminar', style: TextStyle(color: Colors.red)))],
     ));
   }
 }

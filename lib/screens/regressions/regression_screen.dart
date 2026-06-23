@@ -9,11 +9,29 @@ class RegressionScreen extends StatefulWidget {
 
 class _RegressionScreenState extends State<RegressionScreen> {
   int _type = 0;
-  final List<_Type> _types = [
+  final ScrollController _scrollController = ScrollController();
+
+  static const List<_Type> _types = [
     _Type('Edad Temprana', Icons.child_care, 'Accede a recuerdos de la infancia para identificar patrones, traumas y bloqueos.'),
     _Type('Vidas Pasadas', Icons.history, 'Explora encarnaciones anteriores para comprender relaciones y miedos.'),
-    _Type('Espacio entre Vidas', Icons.stars, 'Conecta con el proposito del alma y acuerdos prenatales.'),
+    _Type('Espacio entre Vidas', Icons.stars, 'Conecta con el propósito del alma y acuerdos prenatales.'),
   ];
+
+  void _onTypeChanged(int index) {
+    setState(() => _type = index);
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(0,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,10 +43,10 @@ class _RegressionScreenState extends State<RegressionScreen> {
           itemCount: _types.length,
           itemBuilder: (context, i) {
             final sel = _type == i;
-            return GestureDetector(onTap: () => setState(() => _type = i), child: Container(
+            return GestureDetector(onTap: () => _onTypeChanged(i), child: Container(
               width: 140, margin: const EdgeInsets.only(right: 10), padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(color: sel ? AppTheme.purplePrimary : Colors.white, borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: sel ? AppTheme.purplePrimary : AppTheme.purplePrimary.withAlpha(40))),
+                border: Border.all(color: sel ? AppTheme.purplePrimary : AppTheme.purplePrimary.withValues(alpha: 0.16))),
               child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                 Icon(_types[i].icon, color: sel ? Colors.white : AppTheme.purplePrimary, size: 24),
                 const SizedBox(height: 6),
@@ -37,16 +55,19 @@ class _RegressionScreenState extends State<RegressionScreen> {
             ));
           },
         )),
-        Expanded(child: SingleChildScrollView(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Expanded(child: SingleChildScrollView(
+          controller: _scrollController,
+          padding: const EdgeInsets.all(16),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(_types[_type].desc, style: TextStyle(fontSize: 14, color: Colors.grey[700], height: 1.6)),
           const SizedBox(height: 20),
-          const Text('Guia de Regresion', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.purplePrimary)),
+          const Text('Guía de Regresión', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.purplePrimary)),
           const SizedBox(height: 16),
-          _Paso(1, 'Preparacion', 'Busca un lugar tranquilo. Sientate comodamente. Cierra los ojos y respira profundamente 3 veces.'),
-          _Paso(2, 'Relajacion', 'Inhala profundamente, exhala lentamente. Relaja cada parte de tu cuerpo, desde los pies hasta la cabeza.'),
-          _Paso(3, 'Visualizacion', 'Imagina un tunel de luz. La luz te envuelve y te lleva a un espacio seguro.'),
-          _Paso(4, 'Exploracion', 'Que ves? Que colores o personas estan presentes? Que emociones surgen?'),
-          _Paso(5, 'Integracion', 'Pregunta: Que mensaje trae esta experiencia? Agradece y regresa contando del 1 al 5.'),
+          _Paso(1, 'Preparación', 'Busca un lugar tranquilo. Siéntate cómodamente. Cierra los ojos y respira profundamente 3 veces.'),
+          _Paso(2, 'Relajación', 'Inhala profundamente, exhala lentamente. Relaja cada parte de tu cuerpo, desde los pies hasta la cabeza.'),
+          _Paso(3, 'Visualización', 'Imagina un túnel de luz. La luz te envuelve y te lleva a un espacio seguro.'),
+          _Paso(4, 'Exploración', '¿Qué ves? ¿Qué colores o personas están presentes? ¿Qué emociones surgen?'),
+          _Paso(5, 'Integración', 'Pregunta: ¿Qué mensaje trae esta experiencia? Agradece y regresa contando del 1 al 5.'),
         ]))),
       ]),
     );

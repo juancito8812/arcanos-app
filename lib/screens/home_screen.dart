@@ -12,13 +12,13 @@ import 'arrangements/numeric_arrangements_screen.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  static const _items = [
-    _ModuleData('Mi Linea de Vida', Icons.auto_awesome, 'Descubre tus 5 arcanos', LifeLineInputScreen()),
-    _ModuleData('Tiradas de Tarot', Icons.style, 'Lecturas interactivas', TarotMenuScreen()),
-    _ModuleData('Regresiones', Icons.self_improvement, 'Guiadas y reflexivas', RegressionScreen()),
-    _ModuleData('Constelaciones', Icons.groups, 'Orden del sistema familiar', ConstellationScreen()),
-    _ModuleData('Biblioteca', Icons.menu_book, 'Los 22 Arcanos Mayores', ArcanaLibraryScreen()),
-    _ModuleData('Arreglos', Icons.grid_on, 'Analisis numerologicos', NumericArrangementsScreen()),
+  static final List<_ModuleData> _items = [
+    _ModuleData('Mi Línea de Vida', Icons.auto_awesome, 'Descubre tus 5 arcanos', (_) => const LifeLineInputScreen()),
+    _ModuleData('Tiradas de Tarot', Icons.style, 'Lecturas interactivas', (_) => const TarotMenuScreen()),
+    _ModuleData('Regresiones', Icons.self_improvement, 'Guiadas y reflexivas', (_) => const RegressionScreen()),
+    _ModuleData('Constelaciones', Icons.groups, 'Orden del sistema familiar', (_) => const ConstellationScreen()),
+    _ModuleData('Biblioteca', Icons.menu_book, 'Los 22 Arcanos Mayores', (_) => const ArcanaLibraryScreen()),
+    _ModuleData('Arreglos', Icons.grid_on, 'Análisis numerológicos', (_) => const NumericArrangementsScreen()),
   ];
 
   @override
@@ -47,7 +47,7 @@ class HomeScreen extends StatelessWidget {
                 index: i + 1,
                 child: _ModuleCard(
                   data: _items[i],
-                  onTap: () => navigateWithScale(context, _items[i].screen),
+                  onTap: () => navigateWithScale(context, _items[i].builder(context)),
                 ),
               ),
             ),
@@ -73,7 +73,7 @@ class _Header extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.purplePrimary.withAlpha(80),
+            color: AppTheme.purplePrimary.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -83,7 +83,7 @@ class _Header extends StatelessWidget {
         Container(
           width: 70, height: 70,
           decoration: BoxDecoration(
-            color: Colors.white.withAlpha(30),
+            color: Colors.white.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(35),
           ),
           child: const Icon(Icons.auto_awesome, color: AppTheme.goldAccent, size: 36),
@@ -93,7 +93,7 @@ class _Header extends StatelessWidget {
           style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 1.2)),
         const SizedBox(height: 6),
         Text('Arcanos Mayores',
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white.withAlpha(180), letterSpacing: 2)),
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white.withValues(alpha: 0.7), letterSpacing: 2)),
       ]),
     );
   }
@@ -103,8 +103,8 @@ class _ModuleData {
   final String title;
   final IconData icon;
   final String subtitle;
-  final Widget screen;
-  const _ModuleData(this.title, this.icon, this.subtitle, this.screen);
+  final WidgetBuilder builder;
+  const _ModuleData(this.title, this.icon, this.subtitle, this.builder);
 }
 
 class _ModuleCard extends StatefulWidget {
@@ -151,15 +151,15 @@ class _ModuleCardState extends State<_ModuleCard> with SingleTickerProviderState
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [AppTheme.purplePrimary.withAlpha(25), AppTheme.purpleDark.withAlpha(15)],
+                colors: [AppTheme.purplePrimary.withValues(alpha: 0.1), AppTheme.purpleDark.withValues(alpha: 0.06)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppTheme.purplePrimary.withAlpha(30)),
+              border: Border.all(color: AppTheme.purplePrimary.withValues(alpha: 0.12)),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.purplePrimary.withAlpha(25),
+                  color: AppTheme.purplePrimary.withValues(alpha: 0.1),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -171,7 +171,7 @@ class _ModuleCardState extends State<_ModuleCard> with SingleTickerProviderState
                 Container(
                   width: 50, height: 50,
                   decoration: BoxDecoration(
-                    color: AppTheme.purplePrimary.withAlpha(25),
+                    color: AppTheme.purplePrimary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(widget.data.icon, color: AppTheme.purplePrimary, size: 26),
@@ -181,11 +181,14 @@ class _ModuleCardState extends State<_ModuleCard> with SingleTickerProviderState
                   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppTheme.purplePrimary),
                   textAlign: TextAlign.center,
                   maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 Text(widget.data.subtitle,
                   style: TextStyle(fontSize: 10, color: Colors.grey[500]),
                   textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
