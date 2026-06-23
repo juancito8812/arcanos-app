@@ -1,44 +1,40 @@
 ---
 name: auto-sync
-description: Use after completing any code change, bug fix, or feature implementation in the tasa-del-dia-app project. Automates git commit, push, and AI_HANDOFF.md updates so the repo and handoff doc stay in sync.
-version: "1.1.0"
+description: Después de completar cambios en el proyecto arcanos-app, automatiza git commit, push y actualización de AI_HANDOFF.md para mantener el repo sincronizado.
+version: "1.0.0"
 metadata:
   author: juancito8812
-  project: tasa-del-dia-app-
+  project: arcanos-app
 ---
 
 # Auto-Sync
 
 ## Checklist
 
-- [ ] All tests pass (mobile + desktop)
-- [ ] AI_HANDOFF.md updated with changes
-- [ ] On correct git branch (main unless otherwise specified)
-- [ ] No uncommitted experimental changes
-- [ ] Commit message follows conventional commits format
+- [ ] `flutter analyze` pasa sin errores
+- [ ] AI_HANDOFF.md actualizado con los cambios realizados
+- [ ] En la rama correcta (master a menos que se especifique otra)
+- [ ] Sin cambios experimentales sin commitear
+- [ ] Mensaje de commit sigue el formato convencional
 
 ## Workflow
 
-Run from the repo root (`tasa-del-dia-app-`):
+Ejecutar desde la raíz del proyecto (`arcanos-app`):
 
-### 1. Update AI_HANDOFF.md
-
-Append or update the "Últimos Cambios" section with:
-- What changed (feature, bug fix, refactor)
-- Files modified
-- Tests result
-
-### 2. Verify tests
+### 1. Verificar análisis
 
 ```bash
-# Mobile (from repo root)
-cd tasa-del-dia && npx jest && cd ..
-
-# Desktop (from repo root)
-cd tasa-del-dia-desktop && pytest && cd ..
+flutter analyze
 ```
 
-### 3. Commit and push
+### 2. Actualizar AI_HANDOFF.md
+
+Agregar o actualizar la sección "Últimos cambios" con:
+- Qué cambió (feature, bug fix, refactor)
+- Archivos modificados
+- Resultado de `flutter analyze`
+
+### 3. Commit y push
 
 ```bash
 git add -A
@@ -46,27 +42,27 @@ git commit -m "tipo: descripción concisa del cambio"
 git push
 ```
 
-## Template
+## Template para AI_HANDOFF.md
 
 ```
 ## feature: [nombre]
 
 | Archivo | Cambio |
 |---------|--------|
-| `path/to/file.js` | qué se hizo |
+| `ruta/al/archivo.dart` | qué se hizo |
 
-Tests: [N]/[N] passing (156 total)
+`flutter analyze` — 0 issues ✅
 ```
 
-## When NOT to auto-sync
+## Cuándo NO hacer auto-sync
 
-- Exploratory changes not ready for commit
-- Changes that break tests (fix tests first)
-- Experimental branches not yet pushed
+- Cambios exploratorios no listos para commit
+- Cambios que rompen `flutter analyze` (corregir primero)
+- Ramas experimentales que aún no se han pusheado
 
-## Exit Criteria
+## Criterios de salida
 
-- [ ] Code committed with descriptive message
-- [ ] AI_HANDOFF.md reflects latest state
-- [ ] Tests verified at 100% passing
-- [ ] Push confirmed successful
+- [ ] Código commiteado con mensaje descriptivo
+- [ ] AI_HANDOFF.md refleja el estado actual
+- [ ] `flutter analyze` — 0 issues
+- [ ] Push confirmado exitosamente

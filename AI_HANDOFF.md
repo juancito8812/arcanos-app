@@ -46,7 +46,20 @@ Se eliminaron 23 archivos .dart duplicados fuera de `lib/` (versiones corruptas 
 
 ## Pendiente / Próximos pasos
 
-1. **Ejecutar la app en emulador** — Verificar visualmente que todas las pantallas funcionan
-2. **Agregar animaciones a las pantallas que faltan** — tarot_reading_screen, regression_screen, settings_screen, constellation_screen
-3. **Configurar CI/CD con GitHub Actions** — Workflow que compile APK y ejecute flutter analyze automáticamente
-4. **Revisar infos de flutter analyze** — Quedan ~3 infos no fatales (sized_box, interpolation)
+1. **Probar la APK firmada** — Generar keystore y subir secrets a GitHub
+2. **Probar el flujo de actualización** — Hacer tag v1.0.1 y verificar que la app detecta la nueva versión
+3. **Agregar más animaciones** — A pantallas que aún no tienen (tarot_reading, constellation)
+
+## Últimos cambios
+
+| Commit | Cambio |
+|--------|--------|
+| `54f10f4` | feat: changelog automático en releases de GitHub |
+| `27110d4` | feat: firma de APK release con keystore para GitHub Actions |
+| `1f83504` | feat: actualización automática desde GitHub Releases + UI en Settings |
+| `cb0524c` | fix: Kotlin plugin 1.8.22 → 2.0.21 para compatibilidad con package_info_plus |
+| `95ac056` | fix: asset paths - backslash escapando interpolación de Dart |
+| `31c0300` | fix: infos de flutter analyze (SizedBox, string interpolation) |
+| `2db7d2c` | feat: optimizaciones de rendimiento y correcciones UI/UX |
+
+`flutter analyze` — 0 issues ✅
