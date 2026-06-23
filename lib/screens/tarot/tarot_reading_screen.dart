@@ -4,7 +4,6 @@ import '../../theme.dart';
 import '../../data/arcanos_data.dart';
 import '../../models/tarot_spread.dart';
 import '../../models/arcano.dart';
-import '../../utils/animated_widgets.dart';
 
 class TarotReadingScreen extends StatefulWidget {
   final TarotSpread spread;
@@ -13,84 +12,485 @@ class TarotReadingScreen extends StatefulWidget {
   State<TarotReadingScreen> createState() => _TarotReadingScreenState();
 }
 
-class _TarotReadingScreenState extends State<TarotReadingScreen> {
+class _TarotReadingScreenState extends State<TarotReadingScreen>
+    with TickerProviderStateMixin {
   List<Arcano>? _cards;
   bool _shuffling = false;
 
-  void _shuffle() {
-    setState(() { _shuffling = true; _cards = null; });
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      final s = List<Arcano>.from(allArcanos)..shuffle(Random());
-      setState(() { _cards = s.take(widget.spread.numCartas).toList(); _shuffling = false; });  });
+  // Shuffle animation
+  late AnimationController _shuffleAc;
+  late Animation<double> _shuffleRotate;
+  late Animation<double> _glowPulse;
+
+  // Card reveal animations
+  late AnimationController _revealAc;
+  late Animation<double> _revealAnim;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _shuffleAc = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+    _shuffleRotate = Tween<double>(begin: 0, end: 2 * pi * 3).animate(
+      CurvedAnimation(parent: _shuffleAc, curve: Curves.easeInOut),
+    );
+    _glowPulse = Tween<double>(begin: 0.3, end: 0.7).animate(
+      CurvedAnimation(parent: _shuffleAc, curve: Curves.easeInOut),
+    );
+
+    _revealAc = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _revealAnim = CurvedAnimation(
+      parent: _revealAc,
+      curve: Curves.easeOutBack,
+    );
+  }
+
+  @override
+  void dispose() {
+    _shuffleAc.dispose();
+    _revealAc.dispose();
+    super.dispose();
+  }
+
+  void _shuffle() async {
+    setState(() => _shuffling = true);
+    _cards = null;
+    _shuffleAc.forward(from: 0);
+
+    await Future.delayed(const Duration(milliseconds: 1800));
+
+    if (!mounted) return;
+    final s = List<Arcano>.from(allArcanos)..shuffle(Random());
+    setState(() {
+      _cards = s.take(widget.spread.numCartas).toList();
+      _shuffling = false;
+    });
+    _shuffleAc.reset();
+    _revealAc.forward(from: 0);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(widget.spread.nombre)),
-      body: SingleChildScrollView(padding: const EdgeInsets.all(16), child: Column(children: [
-        SizedBox(width: double.infinity, height: 50,
-          child: ElevatedButton.icon(
-            onPressed: _shuffling ? null : _shuffle,
-            icon: _shuffling ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : const Icon(Icons.shuffle),
-            label: Text(_shuffling ? 'Barajando...' : (_cards == null ? 'Barajar y Tirar' : 'Volver a Tirar')))),
-        const SizedBox(height: 20),
-        if (_shuffling)
-          const Column(children: [
-            SizedBox(height: 40),
-            Icon(Icons.auto_awesome, size: 64, color: AppTheme.purplePrimary),
-            SizedBox(height: 12),
-            Text('Concentra tu intencion...', style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic, color: Colors.grey)),
-            SizedBox(height: 20),
-            Padding(padding: EdgeInsets.symmetric(horizontal: 40), child: LinearProgressIndicator(color: AppTheme.purplePrimary, backgroundColor: AppTheme.purpleLight)),
-          ])
-        else if (_cards != null)
-          Column(children: _cards!.asMap().entries.map((e) => StaggeredFadeIn(
-            index: e.key,
-            child: _CardWidget(position: e.key, posName: widget.spread.posiciones[e.key], arcano: e.value),
-          )).toList()),
-      ])),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(children: [
+          // Shuffle button
+          _ShuffleButton(
+            shuffling: _shuffling,
+            hasCards: _cards != null,
+            onPressed: _shuffle,
+            rotateAnim: _shuffleRotate,
+          ),
+          const SizedBox(height: 20),
+          // Content
+          if (_shuffling)
+            _ShufflingState(glowPulse: _glowPulse, rotateAnim: _shuffleRotate)
+          else if (_cards != null)
+            ..._cards!.asMap().entries.map((e) => Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: _CardWidget(
+                    position: e.key,
+                    posName: widget.spread.posiciones[e.key],
+                    arcano: e.value,
+                    index: e.key,
+                    revealAnim: _revealAnim,
+                  ),
+                )),
+        ]),
+      ),
     );
   }
 }
 
-class _CardWidget extends StatelessWidget {
-  final int position; final String posName; final Arcano arcano;
-  const _CardWidget({required this.position, required this.posName, required this.arcano});
+class _ShuffleButton extends StatelessWidget {
+  final bool shuffling;
+  final bool hasCards;
+  final VoidCallback onPressed;
+  final Animation<double> rotateAnim;
+
+  const _ShuffleButton({
+    required this.shuffling,
+    required this.hasCards,
+    required this.onPressed,
+    required this.rotateAnim,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Card(margin: const EdgeInsets.only(bottom: 12), child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(children: [
-        Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(color: AppTheme.purplePrimary.withAlpha(20), borderRadius: BorderRadius.circular(8)),
-          child: Text('Pos. ${position + 1}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.purplePrimary))),
-        const SizedBox(width: 8),
-        Text(posName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.purplePrimary)),
-      ]),
-      const SizedBox(height: 12),
-      Row(children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.asset('assets/cards/arcano_${arcano.numero}.png',
-            width: 65, height: 95, fit: BoxFit.cover,
-            errorBuilder: (c, e, s) => Container(width: 65, height: 95,
-              decoration: BoxDecoration(gradient: const LinearGradient(colors: [AppTheme.purplePrimary, AppTheme.purpleDark], begin: Alignment.topLeft, end: Alignment.bottomRight),
-                borderRadius: BorderRadius.circular(8)),
-              child: Center(child: Text(arcano.nombreRomano, style: const TextStyle(color: AppTheme.goldAccent, fontSize: 18, fontWeight: FontWeight.bold)))),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(arcano.nombreCompleto, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppTheme.purplePrimary)),
-          const SizedBox(height: 4),
-          Text(arcano.leyEspiritual, style: TextStyle(fontSize: 11, color: Colors.grey[600]), maxLines: 3),
-        ])),
-      ]),
-      const SizedBox(height: 10),
-      Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: AppTheme.goldLight.withAlpha(100), borderRadius: BorderRadius.circular(12)),
-        child: Text(_reflexion(arcano.numero), style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: Colors.grey[600], height: 1.4))),
-    ])));
+    return SizedBox(
+      width: double.infinity,
+      height: 54,
+      child: AnimatedBuilder(
+        animation: rotateAnim,
+        builder: (context, _) {
+          return ElevatedButton.icon(
+            onPressed: shuffling ? null : onPressed,
+            icon: shuffling
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : Transform.rotate(
+                    angle: rotateAnim.value,
+                    child: const Icon(Icons.shuffle),
+                  ),
+            label: Text(
+              shuffling
+                  ? 'Barajando...'
+                  : (hasCards ? 'Volver a Tirar' : 'Barajar y Tirar'),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.purplePrimary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              elevation: shuffling ? 2 : 6,
+              shadowColor: AppTheme.purplePrimary.withValues(alpha: 0.4),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _ShufflingState extends StatelessWidget {
+  final Animation<double> glowPulse;
+  final Animation<double> rotateAnim;
+
+  const _ShufflingState({
+    required this.glowPulse,
+    required this.rotateAnim,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(children: [
+      const SizedBox(height: 30),
+      AnimatedBuilder(
+        animation: glowPulse,
+        builder: (context, _) {
+          return Container(
+            width: 140,
+            height: 140,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.goldAccent.withValues(
+                    alpha: glowPulse.value * 0.25,
+                  ),
+                  blurRadius: 60 + glowPulse.value * 30,
+                  spreadRadius: 10,
+                ),
+              ],
+            ),
+            child: Center(
+              child: Transform.rotate(
+                angle: rotateAnim.value,
+                child: const Icon(
+                  Icons.auto_awesome,
+                  size: 72,
+                  color: AppTheme.purplePrimary,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+      const SizedBox(height: 20),
+      TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0, end: 1),
+        duration: const Duration(milliseconds: 600),
+        builder: (context, value, _) {
+          return Opacity(
+            opacity: value,
+            child: Column(children: [
+              const Text(
+                'Concentra tu intención...',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontStyle: FontStyle.italic,
+                  color: Colors.grey,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: LinearProgressIndicator(
+                    color: AppTheme.purplePrimary,
+                    backgroundColor: AppTheme.purpleLight.withValues(alpha: 0.3),
+                    minHeight: 6,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Las cartas se están alineando con tu energía...',
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+            ]),
+          );
+        },
+      ),
+    ]);
+  }
+}
+
+class _CardWidget extends StatefulWidget {
+  final int position;
+  final String posName;
+  final Arcano arcano;
+  final int index;
+  final Animation<double> revealAnim;
+
+  const _CardWidget({
+    required this.position,
+    required this.posName,
+    required this.arcano,
+    required this.index,
+    required this.revealAnim,
+  });
+
+  @override
+  State<_CardWidget> createState() => _CardWidgetState();
+}
+
+class _CardWidgetState extends State<_CardWidget>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _hoverAc;
+  late Animation<double> _hoverScale;
+  bool _isExpanded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _hoverAc = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    _hoverScale = Tween<double>(begin: 1, end: 1.02).animate(
+      CurvedAnimation(parent: _hoverAc, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _hoverAc.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => setState(() => _isExpanded = !_isExpanded),
+      onTapDown: (_) => _hoverAc.forward(),
+      onTapUp: (_) => _hoverAc.reverse(),
+      onTapCancel: () => _hoverAc.reverse(),
+      child: AnimatedBuilder(
+        animation: Listenable.merge([_hoverScale, widget.revealAnim]),
+        builder: (context, _) {
+          final scale = _hoverScale.value;
+          final revealVal = widget.revealAnim.value;
+          final delay = 0.05 * widget.index;
+          final localReveal = ((revealVal - delay) / (1 - delay)).clamp(0.0, 1.0);
+
+          return Transform.scale(
+            scale: scale,
+            child: Opacity(
+              opacity: localReveal,
+              child: Card(
+                elevation: _isExpanded ? 6 : 3,
+                shadowColor: AppTheme.purplePrimary.withValues(alpha: 0.3),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                margin: EdgeInsets.zero,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Position header
+                      Row(children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppTheme.purplePrimary.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            'Pos. ${widget.position + 1}',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.purplePrimary,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            widget.posName,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              color: AppTheme.purplePrimary,
+                            ),
+                          ),
+                        ),
+                        // Expand indicator
+                        AnimatedRotation(
+                          turns: _isExpanded ? 0.5 : 0,
+                          duration: const Duration(milliseconds: 200),
+                          child: Icon(
+                            Icons.expand_more,
+                            size: 20,
+                            color: AppTheme.purplePrimary.withValues(alpha: 0.6),
+                          ),
+                        ),
+                      ]),
+                      const SizedBox(height: 12),
+                      // Card image + info row
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Card image with flip effect
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.asset(
+                              'assets/cards/arcano_${widget.arcano.numero}.png',
+                              width: 65,
+                              height: 95,
+                              fit: BoxFit.cover,
+                              errorBuilder: (c, e, s) => Container(
+                                width: 65,
+                                height: 95,
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      AppTheme.purplePrimary,
+                                      AppTheme.purpleDark,
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    widget.arcano.nombreRomano,
+                                    style: const TextStyle(
+                                      color: AppTheme.goldAccent,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          // Card info
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  widget.arcano.nombreCompleto,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                    color: AppTheme.purplePrimary,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                AnimatedCrossFade(
+                                  firstChild: Text(
+                                    widget.arcano.leyEspiritual,
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.grey[600],
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  secondChild: Text(
+                                    widget.arcano.leyEspiritual,
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                  crossFadeState: _isExpanded
+                                      ? CrossFadeState.showSecond
+                                      : CrossFadeState.showFirst,
+                                  duration: const Duration(milliseconds: 200),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      // Reflection - always visible
+                      const SizedBox(height: 10),
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppTheme.goldLight.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.auto_awesome,
+                              size: 14,
+                              color: AppTheme.goldAccent.withValues(alpha: 0.7),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _reflexion(widget.arcano.numero),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontStyle: FontStyle.italic,
+                                  color: Colors.grey[600],
+                                  height: 1.4,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 
   String _reflexion(int n) {
