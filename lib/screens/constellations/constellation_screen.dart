@@ -156,4 +156,27 @@ class _Secretos extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(padding: const EdgeInsets.all(16), child: Column(children: [
       Card(child: Padding(padding: const EdgeInsets.all(20), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
- 
+        const Text('Los hijos reproducen los secretos familiares:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.purplePrimary)),
+        const SizedBox(height: 12),
+        _Secret('- Primogenito: Padre', 'El primero hereda la lealtad del padre.'),
+        _Secret('- Segundo: Madre', 'El segundo carga la balanza con la madre.'),
+        _Secret('- Tercero: Matrimonio', 'El tercero busca el equilibrio en la pareja.'),
+        _Secret('- Cuarto: Familia', 'El cuarto restaura el orden del sistema.'),
+      ]))),
+    ]));
+  }
+}
+
+class _Secret extends StatelessWidget {
+  final String title;
+  final String desc;
+  const _Secret(this.title, this.desc);
+  @override
+  Widget build(BuildContext context) {
+    return Padding(padding: const EdgeInsets.only(bottom: 12), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.purplePrimary)),
+      const SizedBox(height: 4),
+      Text(desc, style: TextStyle(fontSize: 13, color: Colors.grey[700])),
+    ]));
+  }
+}

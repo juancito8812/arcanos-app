@@ -28,7 +28,6 @@ class TarotMenuScreen extends StatelessWidget {
               child: Text('${s.numCartas} cartas', style: const TextStyle(fontSize: 11, color: AppTheme.purplePrimary, fontWeight: FontWeight.w600))),
             const Icon(Icons.chevron_right, color: AppTheme.purplePrimary),
           ])))),
-        )),
       ]),
     );
   }
