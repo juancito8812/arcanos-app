@@ -17,6 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.29.2'
@@ -45,14 +47,31 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         id: get_version
         run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+      - name: Generate Changelog
+        if: startsWith(github.ref, 'refs/tags/v')
+        id: changelog
+        run: |
+          PREV_TAG=$(git tag --sort=-version:refname | grep -E '^v' | sed -n '2p' || true)
+          {
+            echo "## Cambios en esta version"
+            echo ""
+            if [ -z "$PREV_TAG" ]; then
+              echo "* Primer release"
+            else
+              git log --no-decorate "$PREV_TAG..HEAD" --format="- %s" || echo "* Initial release"
+            fi
+            echo ""
+            echo "---"
+            echo "Descarga el APK e instalalo en tu dispositivo Android."
+          } > changelog.md
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          cat changelog.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v3
         with:
           name: "PsicoTarot v${{ steps.get_version.outputs.version }}"
-          body: |
-            Nueva versión de PsicoTarot Arcanos Mayores.
-            
-            Descarga el APK e instálalo en tu dispositivo Android.
+          body_path: changelog.md
           files: build/app/outputs/flutter-apk/*.apk
           generate_release_notes: true
