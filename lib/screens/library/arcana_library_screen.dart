@@ -86,7 +86,7 @@ class _ArcanaLibraryScreenState extends State<ArcanaLibraryScreen> with SingleTi
               onTap: () => navigateWithSlide(context, ArcanaDetailScreen(arcano: _filtered[i])),
             ),
           ),
-    );
+    ));
   }
 }
 

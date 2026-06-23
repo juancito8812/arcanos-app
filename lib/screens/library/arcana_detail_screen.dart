@@ -133,7 +133,7 @@ class _Chips extends StatelessWidget {
       const SizedBox(width: 12),
       _Chip(label: arcano.polaridad, color: Colors.blue, icon: Icons.balance),
       const SizedBox(width: 12),
-      _Chip(label: arcano.valorNuclear, color: Colors.green, icon: Icons.tag),
+      _Chip(label: arcano.valorNuclear.toString(), color: Colors.green, icon: Icons.tag),
     ]);
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../theme.dart';
-import '../../models/life_line.dart';
 import '../../services/life_line_calculator.dart';
 import '../../utils/animated_widgets.dart';
 import '../../utils/route_transitions.dart';

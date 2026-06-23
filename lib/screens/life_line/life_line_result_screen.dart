@@ -116,7 +116,7 @@ class _PosCard extends StatelessWidget {
                 child: Text('#\$index', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppTheme.purplePrimary)),
               ),
               const SizedBox(width: 8),
-              Text(pos.titulo, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.purplePrimary)),
+              Text(pos.nombre, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.purplePrimary)),
             ]),
             const SizedBox(height: 4),
             Text('Edad \${pos.arcano.edadPeriodo}', style: TextStyle(fontSize: 11, color: Colors.grey[500])),
