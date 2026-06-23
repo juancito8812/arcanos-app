@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
 import '../../theme.dart';
 import '../../services/database_service.dart';
+import '../../services/update_service.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  UpdateStatus _updateStatus = UpdateStatus.idle;
+  UpdateInfo? _updateInfo;
+  double _downloadProgress = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -25,21 +35,155 @@ class SettingsScreen extends StatelessWidget {
         _Card(title: 'Privacidad', icon: Icons.security,
           child: const Text('Todos tus datos se almacenan localmente. No se comparte informacion personal.')),
         const SizedBox(height: 12),
+        _Card(title: 'Actualizaciones', icon: Icons.system_update,
+          child: _buildUpdateSection()),
+        const SizedBox(height: 12),
         _Card(title: 'Gestion de Datos', icon: Icons.storage,
           child: TextButton.icon(onPressed: () => _borrar(context), icon: const Icon(Icons.delete_forever, color: Colors.red), label: const Text('Limpiar datos', style: TextStyle(color: Colors.red)))),
-        const SizedBox(height: 12),
-        _Card(title: 'Créditos', icon: Icons.favorite,
-          child: const Center(
-            child: Text('(c) Psic. Blanca E. Siso M. - Bienestar Integral y Crecimiento Personal', textAlign: TextAlign.center),
-          )),
       ]),
     );
+  }
+
+  Widget _buildUpdateSection() {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      if (_updateStatus == UpdateStatus.idle)
+        TextButton.icon(
+          onPressed: _checkForUpdates,
+          icon: const Icon(Icons.search, color: AppTheme.purplePrimary),
+          label: const Text('Buscar actualizaciones', style: TextStyle(color: AppTheme.purplePrimary)),
+        ),
+      if (_updateStatus == UpdateStatus.checking)
+        const Row(children: [
+          SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+          SizedBox(width: 10),
+          Text('Buscando actualizaciones...'),
+        ]),
+      if (_updateStatus == UpdateStatus.upToDate)
+        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const Row(children: [
+            Icon(Icons.check_circle, color: Colors.green, size: 18),
+            SizedBox(width: 6),
+            Text('Ya tienes la ultima version', style: TextStyle(color: Colors.green)),
+          ]),
+          const SizedBox(height: 6),
+          TextButton.icon(
+            onPressed: _checkForUpdates,
+            icon: const Icon(Icons.refresh, size: 16),
+            label: const Text('Verificar de nuevo'),
+          ),
+        ]),
+      if (_updateStatus == UpdateStatus.available)
+        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const Row(children: [
+            Icon(Icons.system_update, color: AppTheme.goldAccent, size: 18),
+            SizedBox(width: 6),
+            Text('Nueva version disponible', style: TextStyle(color: AppTheme.goldAccent, fontWeight: FontWeight.bold)),
+          ]),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _downloadAndInstall,
+              icon: const Icon(Icons.download, size: 18),
+              label: const Text('Descargar e instalar'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.purplePrimary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
+        ]),
+      if (_updateStatus == UpdateStatus.downloading)
+        Column(children: [
+          LinearProgressIndicator(
+            value: _downloadProgress,
+            backgroundColor: Colors.grey[300],
+            color: AppTheme.purplePrimary,
+          ),
+          const SizedBox(height: 6),
+          Text('Descargando... ${(_downloadProgress * 100).toStringAsFixed(0)}%',
+            style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        ]),
+      if (_updateStatus == UpdateStatus.error)
+        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const Row(children: [
+            Icon(Icons.error_outline, color: Colors.red, size: 18),
+            SizedBox(width: 6),
+            Text('Error al buscar actualizacion', style: TextStyle(color: Colors.red)),
+          ]),
+          const SizedBox(height: 6),
+          TextButton.icon(
+            onPressed: _checkForUpdates,
+            icon: const Icon(Icons.refresh, size: 16),
+            label: const Text('Intentar de nuevo'),
+          ),
+        ]),
+      if (_updateStatus == UpdateStatus.installing)
+        const Row(children: [
+          SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+          SizedBox(width: 10),
+          Text('Instalando...'),
+        ]),
+    ]);
+  }
+
+  Future<void> _checkForUpdates() async {
+    setState(() => _updateStatus = UpdateStatus.checking);
+
+    final info = await UpdateService.checkForUpdate();
+
+    if (!mounted) return;
+
+    if (info == null) {
+      setState(() {
+        _updateStatus = UpdateStatus.error;
+        _updateInfo = null;
+      });
+    } else if (!info.isNewer) {
+      setState(() {
+        _updateStatus = UpdateStatus.upToDate;
+        _updateInfo = null;
+      });
+    } else {
+      setState(() {
+        _updateStatus = UpdateStatus.available;
+        _updateInfo = info;
+      });
+    }
+  }
+
+  Future<void> _downloadAndInstall() async {
+    if (_updateInfo == null) return;
+
+    setState(() {
+      _updateStatus = UpdateStatus.downloading;
+      _downloadProgress = 0;
+    });
+
+    final file = await UpdateService.downloadApk(
+      _updateInfo!.downloadUrl,
+      onProgress: (progress) {
+        if (mounted) setState(() => _downloadProgress = progress);
+      },
+    );
+
+    if (file == null || !mounted) {
+      setState(() {
+        _updateStatus = UpdateStatus.error;
+        _updateInfo = null;
+      });
+      return;
+    }
+
+    setState(() => _updateStatus = UpdateStatus.installing);
+    await UpdateService.installApk(file.path);
   }
 
   void _borrar(BuildContext c) {
     showDialog(context: c, builder: (ctx) => AlertDialog(
       title: const Text('Limpiar Datos'),
-      content: const Text('Se eliminarán todos los datos almacenados.'),
+      content: const Text('Se eliminaran todos los datos almacenados.'),
       actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancelar')),
         TextButton(onPressed: () async {
           Navigator.pop(ctx);
@@ -53,6 +197,8 @@ class SettingsScreen extends StatelessWidget {
     ));
   }
 }
+
+enum UpdateStatus { idle, checking, upToDate, available, downloading, installing, error }
 
 class _Card extends StatelessWidget {
   final String title; final IconData icon; final Widget child;
