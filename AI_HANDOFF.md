@@ -4,12 +4,13 @@
 
 **`flutter analyze` — No issues found ✅**
 
-**Versión:** v1.0.1 — Release creada para probar auto-update (tag movido al commit `06e6453`)
+**Versión:** v1.0.1 — Release verificada con APK adjunto (23.5 MB)
 
 ## Últimos commits
 
 | Fecha | Commit | Cambio |
 |-------|--------|--------|
+| Hoy | `b590180` | docs: actualiza AI_HANDOFF.md con animaciones, cartas Marsella y últimos cambios |
 | Hoy | `2cf1b77` | feat: agrega animaciones a tarot_reading_screen y constellation_screen |
 | Hoy | `06e6453` | feat: reemplaza imagenes de cartas con diseno Marsella v1.0.1 |
 | Hoy | `737e709` | chore: elimina shared_preferences de dependencias (no usado) |
@@ -19,11 +20,12 @@
 | Prev | `23a79b6` | docs: agrega README con instrucciones de instalación de todas las skills |
 | Prev | `d07cf5e` | fix: actualiza Gradle a 8.11.1 para compatibilidad con AGP 8.10.0 |
 
-## Última Release
+## Última Release — v1.0.1 ✅
 
-- **Tag:** `v1.0.1` (movido al último commit)
-- La release genera APK firmado automáticamente vía GitHub Actions (workflow `build-apk.yml`)
-- La app detecta la actualización desde **Settings → Actualizaciones → Buscar actualizaciones**
+- **Tag:** `v1.0.1` → commit `b590180`
+- **Release creada:** PsicoTarot v1.0.1 (2026-06-23)
+- **APK:** `app-release.apk` — **23.5 MB** (0 descargas)
+- **Flujo de actualización:** Settings → Actualizaciones → Buscar actualizaciones → detecta v1.0.1 y permite descargar/instalar
 
 ## Animaciones Agregadas 🎬
 
@@ -142,10 +144,11 @@ skills/
 ## Pendiente / Próximos pasos
 
 1. ✅ ~~Probar APK firmada~~ — Workflow pasa con Gradle 8.11.1
-2. ✅ ~~Probar flujo de actualización~~ — Tag v1.0.1 creado
+2. ✅ ~~Probar flujo de actualización~~ — Release v1.0.1 creada con APK (23.5 MB)
 3. ✅ ~~Eliminar shared_preferences~~ — Resuelto
 4. ✅ ~~Validación de inputs~~ — Agregada
 5. ✅ ~~Cartas de Marsella~~ — Generadas y reemplazadas
 6. ✅ ~~Animaciones en tarot_reading y constellation~~ — Completadas
+7. 📝 Pendiente: Agregar animaciones a life_line_result_screen y regression_screen
 
 `flutter analyze` — 0 issues ✅
