@@ -19,6 +19,7 @@ dependencies:
   package_info_plus: ^9.0.1
   dio: ^5.9.2
   open_filex: ^4.7.0
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
@@ -29,3 +30,11 @@ flutter:
   uses-material-design: true
   assets:
     - assets/cards/
+    - assets/icon_original.png
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon_original.png"
+  adaptive_icon_background: "#6A1B9A"
+  adaptive_icon_foreground: "assets/icon_original.png"

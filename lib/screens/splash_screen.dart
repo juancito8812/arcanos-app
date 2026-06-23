@@ -107,17 +107,20 @@ class _SplashScreenState extends State<SplashScreen>
                           width: 100,
                           height: 100,
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(30),
                             border: Border.all(
                               color: AppTheme.goldAccent.withValues(alpha: 0.4),
                               width: 2,
                             ),
                           ),
-                          child: const Icon(
-                            Icons.auto_awesome,
-                            size: 50,
-                            color: AppTheme.goldAccent,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(28),
+                            child: Image.asset(
+                              'assets/icon_original.png',
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                       ),
