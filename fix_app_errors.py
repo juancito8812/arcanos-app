@@ -1,4 +1,49 @@
-import 'package:flutter/material.dart';
+#!/usr/bin/env python3
+"""Fix all Flutter analysis errors in the arcanos project."""
+import os
+
+BASE = "C:/Users/Juan Sanchez/Desktop/mis proyectos de programacion/aplicacion arcanos mayores/lib"
+
+def r(path):
+    with open(os.path.join(BASE, path), 'r') as f:
+        return f.read()
+
+def w(path, content):
+    with open(os.path.join(BASE, path), 'w', encoding='utf-8') as f:
+        f.write(content)
+    print(f"Fixed: {path}")
+
+# 1. home_screen.dart - remove unused import
+t = r("screens/home_screen.dart")
+t = t.replace("import 'settings/settings_screen.dart';\n", '')
+w("screens/home_screen.dart", t)
+
+# 2. settings_screen.dart - fix credits string
+t = r("screens/settings/settings_screen.dart")
+old = "child: const Text('(c) Psic. Blanca E. Siso M.\nBienestar Integral y Crecimiento Personal', textAlign: TextAlign.center)),"
+new = "child: const Text('(c) Psic. Blanca E. Siso M. - Bienestar Integral y Crecimiento Personal', textAlign: TextAlign.center)),"
+if old in t:
+    t = t.replace(old, new)
+else:
+    # Already has the dash version
+    pass
+w("screens/settings/settings_screen.dart", t)
+
+# 3. constellation_screen.dart - fix secretos string
+t = r("screens/constellations/constellation_screen.dart")
+old = "child: const Text('Los hijos reproducen los secretos familiares.\n-Primogenito: Padre\n-Segundo: Madre\n-Tercero: Matrimonio\n-Cuarto: Familia')),"
+new = "child: const Text('Los hijos reproducen los secretos familiares: Primogenito-Padre, Segundo-Madre, Tercero-Matrimonio, Cuarto-Familia')),"
+if old in t:
+    t = t.replace(old, new)
+else:
+    old2 = "child: const Text('Los hijos reproducen los secretos familiares. Primogenito con Padre, Segundo con Madre, Tercero con Matrimonio, Cuarto con la Familia.')),"
+    new2 = "child: const Text('Los hijos reproducen los secretos familiares: Primogenito-Padre, Segundo-Madre, Tercero-Matrimonio, Cuarto-Familia')),"
+    if old2 in t:
+        t = t.replace(old2, new2)
+w("screens/constellations/constellation_screen.dart", t)
+
+# 4. Re-write numeric_arrangements_screen.dart completely
+w("screens/arrangements/numeric_arrangements_screen.dart", """import 'package:flutter/material.dart';
 import '../../theme.dart';
 import '../../models/life_line.dart';
 import '../../services/life_line_calculator.dart';
@@ -284,3 +329,6 @@ class _PairCard extends StatelessWidget {
     ])));
   }
 }
+""")
+
+print("Script created. Copy and run it.")
