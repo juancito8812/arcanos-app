@@ -3,6 +3,7 @@ import '../../theme.dart';
 import '../../models/life_line.dart';
 import '../../services/life_line_calculator.dart';
 import '../../data/arcanos_data.dart';
+import '../../utils/animated_widgets.dart';
 
 class NumericArrangementsScreen extends StatefulWidget {
   const NumericArrangementsScreen({super.key});
@@ -71,21 +72,21 @@ class _NumericArrangementsScreenState extends State<NumericArrangementsScreen> {
         ]))),
         const SizedBox(height: 16),
         if (_result != null) ...[
-          _buildLineaDeVida(),
+          StaggeredFadeIn(index: 0, child: _buildLineaDeVida()),
           const SizedBox(height: 12),
-          _buildRelacionNuclear(),
+          StaggeredFadeIn(index: 1, child: _buildRelacionNuclear()),
           const SizedBox(height: 12),
-          _buildFactorEspejo(),
+          StaggeredFadeIn(index: 2, child: _buildFactorEspejo()),
           const SizedBox(height: 12),
-          _buildArregloMaya(),
+          StaggeredFadeIn(index: 3, child: _buildArregloMaya()),
           const SizedBox(height: 12),
-          _buildArregloConsciencia(),
+          StaggeredFadeIn(index: 4, child: _buildArregloConsciencia()),
           const SizedBox(height: 12),
-          _buildTrampasMaya(),
+          StaggeredFadeIn(index: 5, child: _buildTrampasMaya()),
           const SizedBox(height: 12),
-          _buildPolaridad(),
+          StaggeredFadeIn(index: 6, child: _buildPolaridad()),
           const SizedBox(height: 12),
-          _buildTrios(),
+          StaggeredFadeIn(index: 7, child: _buildTrios()),
         ],
       ])),
     );

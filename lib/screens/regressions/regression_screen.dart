@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme.dart';
+import '../../utils/animated_widgets.dart';
 
 class RegressionScreen extends StatefulWidget {
   const RegressionScreen({super.key});
@@ -59,15 +60,15 @@ class _RegressionScreenState extends State<RegressionScreen> {
           controller: _scrollController,
           padding: const EdgeInsets.all(16),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(_types[_type].desc, style: TextStyle(fontSize: 14, color: Colors.grey[700], height: 1.6)),
+          StaggeredFadeIn(index: 0, child: Text(_types[_type].desc, style: TextStyle(fontSize: 14, color: Colors.grey[700], height: 1.6))),
           const SizedBox(height: 20),
-          const Text('Guía de Regresión', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.purplePrimary)),
+          StaggeredFadeIn(index: 1, child: const Text('Guía de Regresión', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.purplePrimary))),
           const SizedBox(height: 16),
-          _Paso(1, 'Preparación', 'Busca un lugar tranquilo. Siéntate cómodamente. Cierra los ojos y respira profundamente 3 veces.'),
-          _Paso(2, 'Relajación', 'Inhala profundamente, exhala lentamente. Relaja cada parte de tu cuerpo, desde los pies hasta la cabeza.'),
-          _Paso(3, 'Visualización', 'Imagina un túnel de luz. La luz te envuelve y te lleva a un espacio seguro.'),
-          _Paso(4, 'Exploración', '¿Qué ves? ¿Qué colores o personas están presentes? ¿Qué emociones surgen?'),
-          _Paso(5, 'Integración', 'Pregunta: ¿Qué mensaje trae esta experiencia? Agradece y regresa contando del 1 al 5.'),
+          StaggeredFadeIn(index: 2, child: _Paso(1, 'Preparación', 'Busca un lugar tranquilo. Siéntate cómodamente. Cierra los ojos y respira profundamente 3 veces.')),
+          StaggeredFadeIn(index: 3, child: _Paso(2, 'Relajación', 'Inhala profundamente, exhala lentamente. Relaja cada parte de tu cuerpo, desde los pies hasta la cabeza.')),
+          StaggeredFadeIn(index: 4, child: _Paso(3, 'Visualización', 'Imagina un túnel de luz. La luz te envuelve y te lleva a un espacio seguro.')),
+          StaggeredFadeIn(index: 5, child: _Paso(4, 'Exploración', '¿Qué ves? ¿Qué colores o personas están presentes? ¿Qué emociones surgen?')),
+          StaggeredFadeIn(index: 6, child: _Paso(5, 'Integración', 'Pregunta: ¿Qué mensaje trae esta experiencia? Agradece y regresa contando del 1 al 5.')),
         ]))),
       ]),
     );
