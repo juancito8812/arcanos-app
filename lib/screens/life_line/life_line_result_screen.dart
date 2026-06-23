@@ -44,9 +44,7 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-        final fmt = fecha.day.toString().padLeft(2, '0') +
-        '/' + fecha.month.toString().padLeft(2, '0') +
-        '/' + fecha.year.toString();
+        final fmt = '${fecha.day.toString().padLeft(2, '0')}/${fecha.month.toString().padLeft(2, '0')}/${fecha.year.toString()}';
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),

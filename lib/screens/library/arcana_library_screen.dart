@@ -110,7 +110,7 @@ class _Card extends StatelessWidget {
             Expanded(
               child: Hero(
                   tag: 'arcano_${arcano.numero}',
-                  child: Container(
+                  child: SizedBox(
                     width: double.infinity,
                     child: Image.asset(
                   'assets/cards/arcano_\${arcano.numero}.png',
