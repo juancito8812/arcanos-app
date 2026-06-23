@@ -26,6 +26,11 @@ iOS/
 .vscode/
 *.swp
 
+# Android keystore (no subir al repositorio)
+android/key.properties
+android/**/upload-keystore.jks
+*.jks
+
 # Misc
 *.bak
 *.orig

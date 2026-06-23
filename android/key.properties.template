@@ -1,0 +1,6 @@
+# Copia este archivo como key.properties y completa los valores
+# ¡NO subas key.properties ni upload-keystore.jks al repositorio!
+storePassword=tu_contraseña_del_keystore
+keyPassword=tu_contraseña_de_la_clave
+keyAlias=tu_alias
+storeFile=upload-keystore.jks
