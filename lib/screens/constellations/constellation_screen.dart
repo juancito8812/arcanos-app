@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../theme.dart';
 import '../../data/arcanos_data.dart';
 import '../../models/arcano.dart';
+import '../../utils/animated_widgets.dart';
 
 class ConstellationScreen extends StatefulWidget {
   const ConstellationScreen({super.key});
@@ -10,9 +11,25 @@ class ConstellationScreen extends StatefulWidget {
   State<ConstellationScreen> createState() => _ConstellationScreenState();
 }
 
-class _ConstellationScreenState extends State<ConstellationScreen> {
+class _ConstellationScreenState extends State<ConstellationScreen> with SingleTickerProviderStateMixin {
   int _tab = 0;
+  late AnimationController _tabAc;
+  late Animation<double> _tabAnim;
   final tabs = ['Que es?', '3 Leyes', 'Rueda', 'Frases', 'Secretos'];
+
+  @override
+  void initState() {
+    super.initState();
+    _tabAc = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
+    _tabAnim = CurvedAnimation(parent: _tabAc, curve: Curves.easeOut);
+    _tabAc.forward();
+  }
+
+  @override
+  void dispose() {
+    _tabAc.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,9 +43,21 @@ class _ConstellationScreenState extends State<ConstellationScreen> {
             child: ChoiceChip(label: Text(tabs[i], style: const TextStyle(fontSize: 12)), selected: _tab == i,
               selectedColor: AppTheme.purplePrimary,
               labelStyle: TextStyle(color: _tab == i ? Colors.white : AppTheme.purplePrimary, fontSize: 12),
-              onSelected: (v) => setState(() => _tab = i))),
+              onSelected: (v) => setState(() {
+                _tab = i;
+                _tabAc.reset();
+                _tabAc.forward();
+              }))),
         )),
-        Expanded(child: _buildContent()),
+        Expanded(
+          child: FadeTransition(
+            opacity: _tabAnim,
+            child: SlideTransition(
+              position: Tween<Offset>(begin: const Offset(0, 0.04), end: Offset.zero).animate(_tabAnim),
+              child: _buildContent(),
+            ),
+          ),
+        ),
       ]),
     );
   }
@@ -49,19 +78,19 @@ class _Info extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(padding: const EdgeInsets.all(16), child: Column(children: [
-      Card(child: Padding(padding: const EdgeInsets.all(20), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      StaggeredFadeIn(index: 0, child: Card(child: Padding(padding: const EdgeInsets.all(20), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const Text('Constelaciones Familiares', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.purplePrimary)),
         const SizedBox(height: 12),
         const Text('Terapia que permite observar y sanar esquemas afectivos y cognitivos que afectan la cotidianidad. Busca ordenar el sistema familiar, dando lugar a todos los miembros, especialmente a los excluidos.', style: TextStyle(fontSize: 14, height: 1.6)),
-      ]))),
+      ])))),
       const SizedBox(height: 12),
-      Card(child: Padding(padding: const EdgeInsets.all(20), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      StaggeredFadeIn(index: 1, child: Card(child: Padding(padding: const EdgeInsets.all(20), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const Text('Bases Teoricas', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.purplePrimary)),
         const SizedBox(height: 12),
         ...['Virginia Satir', 'Fenomenologia de Husserl', 'P.N.L.', 'Gestalt', 'Psicodrama', 'Hipnosis Ericksoniana'].map((t) => Padding(padding: const EdgeInsets.only(bottom: 4), child: Row(children: [
-          Icon(Icons.check_circle, size: 16, color: AppTheme.purplePrimary.withAlpha(150)),
+          Icon(Icons.check_circle, size: 16, color: AppTheme.purplePrimary.withValues(alpha: 0.6)),
           const SizedBox(width: 8), Text(t, style: const TextStyle(fontSize: 13))]))),
-      ]))),
+      ])))),
     ]));
   }
 }
@@ -70,9 +99,9 @@ class _Leyes extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(padding: const EdgeInsets.all(16), children: [
-      _Ley('1. Pertenencia', 'El sistema llena los vacios. Todos tienen derecho a pertenecer.'),
-      _Ley('2. Orden y Jerarquia', 'Saber quien llega primero y respetarlo. Cada miembro en su lugar.'),
-      _Ley('3. Equilibrio', 'Importante saber recibir y dar siempre un poco mas.'),
+      StaggeredFadeIn(index: 0, child: _Ley('1. Pertenencia', 'El sistema llena los vacios. Todos tienen derecho a pertenecer.')),
+      StaggeredFadeIn(index: 1, child: _Ley('2. Orden y Jerarquia', 'Saber quien llega primero y respetarlo. Cada miembro en su lugar.')),
+      StaggeredFadeIn(index: 2, child: _Ley('3. Equilibrio', 'Importante saber recibir y dar siempre un poco mas.')),
     ]);
   }
 }
@@ -95,22 +124,38 @@ class _Rueda extends StatefulWidget {
   State<_Rueda> createState() => _RuedaState();
 }
 
-class _RuedaState extends State<_Rueda> {
+class _RuedaState extends State<_Rueda> with SingleTickerProviderStateMixin {
   List<Arcano> _cards = [];
+  late AnimationController _wheelAc;
+  late Animation<double> _wheelAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _wheelAc = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
+    _wheelAnim = CurvedAnimation(parent: _wheelAc, curve: Curves.easeOutBack);
+  }
+
+  @override
+  void dispose() {
+    _wheelAc.dispose();
+    super.dispose();
+  }
 
   void _pick() {
     final s = List<Arcano>.from(allArcanos)..shuffle();
     setState(() => _cards = s.take(7).toList());
+    _wheelAc.reset();
+    _wheelAc.forward();
   }
 
-  @override
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          Container(
+          StaggeredFadeIn(index: 0, child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               gradient: const LinearGradient(colors: [AppTheme.purplePrimary, AppTheme.purpleDark]),
@@ -120,9 +165,9 @@ class _RuedaState extends State<_Rueda> {
               'Las Constelaciones Familiares revelan dinamicas ocultas del sistema familiar.',
               style: TextStyle(color: Colors.white, fontSize: 14, height: 1.5),
             ),
-          ),
+          )),
           const SizedBox(height: 16),
-          ElevatedButton.icon(
+          StaggeredFadeIn(index: 1, child: ElevatedButton.icon(
             onPressed: _pick,
             icon: const Icon(Icons.shuffle),
             label: const Text('Seleccionar Cartas'),
@@ -132,46 +177,56 @@ class _RuedaState extends State<_Rueda> {
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-          ),
+          )),
           const SizedBox(height: 16),
           if (_cards.isNotEmpty)
-            SizedBox(
-              width: 350,
-              height: 350,
-              child: Stack(
-                children: [
-                  for (int i = 0; i < _cards.length; i++)
-                    Positioned(
-                      left: 175 + 120 * cos(2 * 3.14159 * i / _cards.length) - 27,
-                      top: 175 + 120 * sin(2 * 3.14159 * i / _cards.length) - 37,
-                      child: GestureDetector(
-                        onTap: () => _showInfo(context, _cards[i]),
-                        child: Container(
-                          width: 55,
-                          height: 75,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(colors: [AppTheme.purplePrimary, AppTheme.purpleDark]),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppTheme.goldAccent.withAlpha(120), width: 1.5),
-                            boxShadow: [BoxShadow(color: AppTheme.purplePrimary.withAlpha(60), blurRadius: 8)],
-                          ),
-                          child: Center(
-                            child: Text(
-                              _cards[i].nombreRomano,
-                              style: const TextStyle(color: AppTheme.goldAccent, fontSize: 16, fontWeight: FontWeight.bold),
+            ScaleTransition(
+              scale: _wheelAnim,
+              child: FadeTransition(
+                opacity: _wheelAnim,
+                child: SizedBox(
+                  width: 350,
+                  height: 350,
+                  child: Stack(
+                    children: [
+                      for (int i = 0; i < _cards.length; i++)
+                        Positioned(
+                          left: 175 + 120 * cos(2 * 3.14159 * i / _cards.length) - 27,
+                          top: 175 + 120 * sin(2 * 3.14159 * i / _cards.length) - 37,
+                          child: StaggeredFadeIn(
+                            index: i,
+                            delay: const Duration(milliseconds: 50),
+                            child: GestureDetector(
+                              onTap: () => _showInfo(context, _cards[i]),
+                              child: Container(
+                                width: 55,
+                                height: 75,
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(colors: [AppTheme.purplePrimary, AppTheme.purpleDark]),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: AppTheme.goldAccent.withValues(alpha: 0.5), width: 1.5),
+                                  boxShadow: [BoxShadow(color: AppTheme.purplePrimary.withValues(alpha: 0.25), blurRadius: 8)],
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    _cards[i].nombreRomano,
+                                    style: const TextStyle(color: AppTheme.goldAccent, fontSize: 16, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                ],
+                    ],
+                  ),
+                ),
               ),
             ),
           const SizedBox(height: 8),
-          const Text(
+          StaggeredFadeIn(index: 8, child: const Text(
             'Toca una carta para ver su mensaje',
             style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: Colors.grey),
-          ),
+          )),
         ],
       ),
     );
@@ -195,7 +250,10 @@ class _Frases extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(padding: const EdgeInsets.all(16),
-      children: frases.map((f) => Card(child: ListTile(leading: Icon(Icons.favorite, color: AppTheme.purplePrimary.withAlpha(150)), title: Text(f, style: const TextStyle(fontStyle: FontStyle.italic))))).toList());
+      children: frases.asMap().entries.map((e) => StaggeredFadeIn(
+        index: e.key,
+        child: Card(child: ListTile(leading: Icon(Icons.favorite, color: AppTheme.purplePrimary.withValues(alpha: 0.6)), title: Text(e.value, style: const TextStyle(fontStyle: FontStyle.italic)))),
+      )).toList());
   }
 }
 
@@ -203,14 +261,14 @@ class _Secretos extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(padding: const EdgeInsets.all(16), child: Column(children: [
-      Card(child: Padding(padding: const EdgeInsets.all(20), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      StaggeredFadeIn(index: 0, child: Card(child: Padding(padding: const EdgeInsets.all(20), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const Text('Los hijos reproducen los secretos familiares:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.purplePrimary)),
         const SizedBox(height: 12),
         _Secret('- Primogenito: Padre', 'El primero hereda la lealtad del padre.'),
         _Secret('- Segundo: Madre', 'El segundo carga la balanza con la madre.'),
         _Secret('- Tercero: Matrimonio', 'El tercero busca el equilibrio en la pareja.'),
         _Secret('- Cuarto: Familia', 'El cuarto restaura el orden del sistema.'),
-      ]))),
+      ])))),
     ]));
   }
 }

@@ -4,6 +4,7 @@ import '../../theme.dart';
 import '../../data/arcanos_data.dart';
 import '../../models/tarot_spread.dart';
 import '../../models/arcano.dart';
+import '../../utils/animated_widgets.dart';
 
 class TarotReadingScreen extends StatefulWidget {
   final TarotSpread spread;
@@ -12,26 +13,15 @@ class TarotReadingScreen extends StatefulWidget {
   State<TarotReadingScreen> createState() => _TarotReadingScreenState();
 }
 
-class _TarotReadingScreenState extends State<TarotReadingScreen> with SingleTickerProviderStateMixin {
+class _TarotReadingScreenState extends State<TarotReadingScreen> {
   List<Arcano>? _cards;
   bool _shuffling = false;
-  late AnimationController _ac;
-  late Animation<double> _anim;
-
-  @override void initState() {
-    super.initState();
-    _ac = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
-    _anim = CurvedAnimation(parent: _ac, curve: Curves.easeInOut);
-  }
-  @override void dispose() { _ac.dispose(); super.dispose(); }
 
   void _shuffle() {
     setState(() { _shuffling = true; _cards = null; });
     Future.delayed(const Duration(milliseconds: 1500), () {
       final s = List<Arcano>.from(allArcanos)..shuffle(Random());
-      setState(() { _cards = s.take(widget.spread.numCartas).toList(); _shuffling = false; });
-      _ac.reset(); _ac.forward();
-    });
+      setState(() { _cards = s.take(widget.spread.numCartas).toList(); _shuffling = false; });  });
   }
 
   @override
@@ -46,15 +36,19 @@ class _TarotReadingScreenState extends State<TarotReadingScreen> with SingleTick
             label: Text(_shuffling ? 'Barajando...' : (_cards == null ? 'Barajar y Tirar' : 'Volver a Tirar')))),
         const SizedBox(height: 20),
         if (_shuffling)
-          const SizedBox(height: 100, child: Center(child: Column(children: [
-            Icon(Icons.style, size: 60, color: AppTheme.purplePrimary),
-            SizedBox(height: 8),
-            Text('Concentra tu intencion...', style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey)),
-            SizedBox(height: 16),
-            LinearProgressIndicator(color: AppTheme.purplePrimary, backgroundColor: AppTheme.purpleLight),
-          ])))
+          const Column(children: [
+            SizedBox(height: 40),
+            Icon(Icons.auto_awesome, size: 64, color: AppTheme.purplePrimary),
+            SizedBox(height: 12),
+            Text('Concentra tu intencion...', style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic, color: Colors.grey)),
+            SizedBox(height: 20),
+            Padding(padding: EdgeInsets.symmetric(horizontal: 40), child: LinearProgressIndicator(color: AppTheme.purplePrimary, backgroundColor: AppTheme.purpleLight)),
+          ])
         else if (_cards != null)
-          FadeTransition(opacity: _anim, child: Column(children: _cards!.asMap().entries.map((e) => _CardWidget(position: e.key, posName: widget.spread.posiciones[e.key], arcano: e.value)).toList())),
+          Column(children: _cards!.asMap().entries.map((e) => StaggeredFadeIn(
+            index: e.key,
+            child: _CardWidget(position: e.key, posName: widget.spread.posiciones[e.key], arcano: e.value),
+          )).toList()),
       ])),
     );
   }
