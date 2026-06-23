@@ -104,29 +104,77 @@ class _RuedaState extends State<_Rueda> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(padding: const EdgeInsets.all(16), child: Column(children: [
-      Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: AppTheme.goldLight.withAlpha(120), borderRadius: BorderRadius.circular(16)),
-        child: const Text('Coloca los arcanos en circulo y concentrate en una situacion.', style: TextStyle(fontSize: 13))),
-      const SizedBox(height: 16),
-      SizedBox(width: double.infinity, height: 45, child: ElevatedButton.icon(onPressed: _pick, icon: const Icon(Icons.casino), label: const Text('Seleccionar Cartas'))),
-      if (_cards.isNotEmpty) ...[
-        const SizedBox(height: 16),
-        SizedBox(height: 350, child: Stack(children: List.generate(_cards.length, (i) {
-          final a = (2 * pi * i) / _cards.length - pi / 2;
-          return Positioned(
-            left: 175 + 120 * cos(a) - 25, top: 175 + 120 * sin(a) - 25,
-            child: GestureDetector(onTap: () => _showInfo(context, _cards[i]), child: Container(width: 55, height: 75,
-              decoration: BoxDecoration(gradient: const LinearGradient(colors: [AppTheme.purplePrimary, AppTheme.purpleDark], begin: Alignment.topLeft, end: Alignment.bottomRight),
-                borderRadius: BorderRadius.circular(8), border: Border.all(color: AppTheme.goldAccent.withAlpha(120), width: 1.5),
-                boxShadow: [BoxShadow(color: AppTheme.purplePrimary.withAlpha(60), blurRadius: 8)]),
-              child: Center(child: Text(_cards[i].nombreRomano, style: const TextStyle(color: AppTheme.goldAccent, fontSize: 16, fontWeight: FontWeight.bold)))))),
-          );
-        }))),
-        const SizedBox(height: 8),
-        const Text('Toca una carta para ver su mensaje', style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: Colors.grey)),
-      ],
-    ]));
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(colors: [AppTheme.purplePrimary, AppTheme.purpleDark]),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Text(
+              'Las Constelaciones Familiares revelan dinamicas ocultas del sistema familiar.',
+              style: TextStyle(color: Colors.white, fontSize: 14, height: 1.5),
+            ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: _pick,
+            icon: const Icon(Icons.shuffle),
+            label: const Text('Seleccionar Cartas'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.purplePrimary,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+          const SizedBox(height: 16),
+          if (_cards.isNotEmpty)
+            SizedBox(
+              width: 350,
+              height: 350,
+              child: Stack(
+                children: [
+                  for (int i = 0; i < _cards.length; i++)
+                    Positioned(
+                      left: 175 + 120 * cos(2 * 3.14159 * i / _cards.length) - 27,
+                      top: 175 + 120 * sin(2 * 3.14159 * i / _cards.length) - 37,
+                      child: GestureDetector(
+                        onTap: () => _showInfo(context, _cards[i]),
+                        child: Container(
+                          width: 55,
+                          height: 75,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(colors: [AppTheme.purplePrimary, AppTheme.purpleDark]),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppTheme.goldAccent.withAlpha(120), width: 1.5),
+                            boxShadow: [BoxShadow(color: AppTheme.purplePrimary.withAlpha(60), blurRadius: 8)],
+                          ),
+                          child: Center(
+                            child: Text(
+                              _cards[i].nombreRomano,
+                              style: const TextStyle(color: AppTheme.goldAccent, fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          const SizedBox(height: 8),
+          const Text(
+            'Toca una carta para ver su mensaje',
+            style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: Colors.grey),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showInfo(BuildContext c, Arcano a) {
