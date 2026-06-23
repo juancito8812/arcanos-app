@@ -13,10 +13,23 @@ class LifeLineInputScreen extends StatefulWidget {
 
 class _LifeLineInputScreenState extends State<LifeLineInputScreen> {
   final _nameCtrl = TextEditingController();
+  final _nameFocus = FocusNode();
   DateTime _fecha = DateTime(1990, 1, 1);
   bool _loading = false;
+  String? _nameError;
 
-  @override void dispose() { _nameCtrl.dispose(); super.dispose(); }
+  static final _nameRegex = RegExp(r"^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s.'-]+$");
+
+  @override void dispose() { _nameCtrl.dispose(); _nameFocus.dispose(); super.dispose(); }
+
+  String? _validateName(String value) {
+    final v = value.trim();
+    if (v.isEmpty) return 'Ingresa tu nombre completo';
+    if (v.length < 3) return 'El nombre debe tener al menos 3 caracteres';
+    if (v.length > 100) return 'El nombre es demasiado largo (max. 100 caracteres)';
+    if (!_nameRegex.hasMatch(v)) return 'Solo se permiten letras y espacios';
+    return null;
+  }
 
   Future<void> _pickDate() async {
     final d = await showDatePicker(context: context, initialDate: _fecha,
@@ -28,11 +41,13 @@ class _LifeLineInputScreenState extends State<LifeLineInputScreen> {
   }
 
   void _calc() async {
-    if (_nameCtrl.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ingresa tu nombre completo')));
+    final error = _validateName(_nameCtrl.text);
+    if (error != null) {
+      setState(() => _nameError = error);
+      _nameFocus.requestFocus();
       return;
     }
-    setState(() => _loading = true);
+    setState(() { _loading = true; _nameError = null; });
     await Future.delayed(const Duration(milliseconds: 600));
     final result = LifeLineCalculator.calcular(nombreCompleto: _nameCtrl.text.trim(), fechaNacimiento: _fecha);
     setState(() => _loading = false);
@@ -67,6 +82,9 @@ class _LifeLineInputScreenState extends State<LifeLineInputScreen> {
           const SizedBox(height: 28),
           StaggeredFadeIn(index: 1, child: TextField(
             controller: _nameCtrl,
+            focusNode: _nameFocus,
+            textCapitalization: TextCapitalization.words,
+            textInputAction: TextInputAction.next,
             decoration: InputDecoration(
               labelText: 'Nombre completo',
               hintText: 'Ej: Ana Maria Perez',
@@ -74,7 +92,12 @@ class _LifeLineInputScreenState extends State<LifeLineInputScreen> {
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
               filled: true,
               fillColor: AppTheme.purplePrimary.withAlpha(8),
+              errorText: _nameError,
+              errorMaxLines: 2,
             ),
+            onChanged: (_) {
+              if (_nameError != null) setState(() => _nameError = _validateName(_nameCtrl.text));
+            },
           )),
           const SizedBox(height: 16),
           StaggeredFadeIn(index: 2, child: InkWell(

@@ -13,11 +13,24 @@ class NumericArrangementsScreen extends StatefulWidget {
 
 class _NumericArrangementsScreenState extends State<NumericArrangementsScreen> {
   final _ctrl = TextEditingController();
+  final _nameFocus = FocusNode();
   DateTime _fecha = DateTime(1990, 1, 1);
   LifeLineResult? _result;
   bool _loading = false;
+  String? _nameError;
 
-  @override void dispose() { _ctrl.dispose(); super.dispose(); }
+  static final _nameRegex = RegExp(r"^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s.'-]+$");
+
+  @override void dispose() { _ctrl.dispose(); _nameFocus.dispose(); super.dispose(); }
+
+  String? _validateName(String value) {
+    final v = value.trim();
+    if (v.isEmpty) return 'Ingresa tu nombre completo';
+    if (v.length < 3) return 'El nombre debe tener al menos 3 caracteres';
+    if (v.length > 100) return 'El nombre es demasiado largo (max. 100 caracteres)';
+    if (!_nameRegex.hasMatch(v)) return 'Solo se permiten letras y espacios';
+    return null;
+  }
 
   Future<void> _pickDate() async {
     final d = await showDatePicker(context: context, initialDate: _fecha, firstDate: DateTime(1900), lastDate: DateTime(2030));
@@ -25,12 +38,14 @@ class _NumericArrangementsScreenState extends State<NumericArrangementsScreen> {
   }
 
   void _calc() {
-    final n = _ctrl.text.trim();
-    if (n.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Ingresa tu nombre completo')));
+    final error = _validateName(_ctrl.text);
+    if (error != null) {
+      setState(() => _nameError = error);
+      _nameFocus.requestFocus();
       return;
     }
-    setState(() => _loading = true);
+    setState(() { _loading = true; _nameError = null; });
+    final n = _ctrl.text.trim();
     final r = LifeLineCalculator.calcular(nombreCompleto: n, fechaNacimiento: _fecha);
     setState(() { _loading = false; _result = r; });
   }
@@ -54,8 +69,23 @@ class _NumericArrangementsScreenState extends State<NumericArrangementsScreen> {
       appBar: AppBar(title: const Text('Arreglos Numericos')),
       body: SingleChildScrollView(padding: const EdgeInsets.all(16), child: Column(children: [
         Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(children: [
-          TextField(controller: _ctrl, decoration: const InputDecoration(labelText: 'Nombre Completo', prefixIcon: Icon(Icons.person_outline), hintText: 'Ej: Ana Maria Perez Garcia'),
-            textCapitalization: TextCapitalization.words),
+          TextField(
+            controller: _ctrl,
+            focusNode: _nameFocus,
+            textCapitalization: TextCapitalization.words,
+            textInputAction: TextInputAction.go,
+            onSubmitted: (_) => _calc(),
+            decoration: InputDecoration(
+              labelText: 'Nombre Completo',
+              prefixIcon: const Icon(Icons.person_outline),
+              hintText: 'Ej: Ana Maria Perez Garcia',
+              errorText: _nameError,
+              errorMaxLines: 2,
+            ),
+            onChanged: (_) {
+              if (_nameError != null) setState(() => _nameError = _validateName(_ctrl.text));
+            },
+          ),
           const SizedBox(height: 12),
           InkWell(onTap: _pickDate, child: Container(
             width: double.infinity, padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
