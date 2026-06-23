@@ -1,0 +1,31 @@
+# Flutter
+build/
+.dart_tool/
+.packages
+.pub/
+.pub-cache/
+.gradle/
+.idea/
+*.iml
+*.lock
+*.log
+*.swp
+*.swo
+.DS_Store
+
+# Android
+android/.gradle/
+android/app/build/
+android/local.properties
+
+# iOS
+iOS/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Misc
+*.bak
+*.orig
