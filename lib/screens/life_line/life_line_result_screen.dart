@@ -44,7 +44,9 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fmt = '\${fecha.day.toString().padLeft(2, '0')}/\${fecha.month.toString().padLeft(2, '0')}/\${fecha.year}';
+        final fmt = fecha.day.toString().padLeft(2, '0') +
+        '/' + fecha.month.toString().padLeft(2, '0') +
+        '/' + fecha.year.toString();
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -71,7 +73,7 @@ class _Header extends StatelessWidget {
 }
 
 class _PosCard extends StatelessWidget {
-  final ArcanoPosition pos;
+  final ArcanoPosicion pos;
   final int index;
   const _PosCard({required this.pos, required this.index});
 

@@ -24,9 +24,9 @@ class ArcanaDetailScreen extends StatelessWidget {
           // Info sections
           StaggeredFadeIn(index: 2, child: _Sec(title: 'Ley Espiritual', body: arcano.leyEspiritual, icon: Icons.lightbulb_outline)),
           const SizedBox(height: 12),
-          StaggeredFadeIn(index: 3, child: _Sec(title: 'Leccion de Vida', body: arcano.leccionVida, icon: Icons.school_outline)),
+          StaggeredFadeIn(index: 3, child: _Sec(title: 'Leccion de Vida', body: arcano.leccionVida, icon: Icons.school)),
           const SizedBox(height: 12),
-          StaggeredFadeIn(index: 4, child: _Sec(title: 'Miedo Asociado', body: arcano.miedoAsociado, icon: Icons.psychology_outline)),
+          StaggeredFadeIn(index: 4, child: _Sec(title: 'Miedo Asociado', body: arcano.miedoAsociado, icon: Icons.psychology)),
           const SizedBox(height: 20),
           // Chips
           StaggeredFadeIn(index: 5, child: _Chips(arcano: arcano)),
@@ -133,7 +133,7 @@ class _Chips extends StatelessWidget {
       const SizedBox(width: 12),
       _Chip(label: arcano.polaridad, color: Colors.blue, icon: Icons.balance),
       const SizedBox(width: 12),
-      _Chip(label: arcano.nuclear, color: Colors.green, icon: Icons.tag),
+      _Chip(label: arcano.valorNuclear, color: Colors.green, icon: Icons.tag),
     ]);
   }
 }

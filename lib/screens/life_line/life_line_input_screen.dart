@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../../theme.dart';
 import '../../models/life_line.dart';
 import '../../services/life_line_calculator.dart';
@@ -36,9 +35,11 @@ class _LifeLineInputScreenState extends State<LifeLineInputScreen> {
     }
     setState(() => _loading = true);
     await Future.delayed(const Duration(milliseconds: 600));
-    final r = LifeLineCalculator.calcular(_nameCtrl.text.trim(), _fecha);
+    final result = LifeLineCalculator.calcular(nombreCompleto: _nameCtrl.text.trim(), fechaNacimiento: _fecha);
     setState(() => _loading = false);
-    if (mounted) navigateWithSlide(context, LifeLineResultScreen(result: r, nombre: _nameCtrl.text.trim(), fecha: _fecha));
+    if (mounted && result != null) {
+      navigateWithSlide(context, LifeLineResultScreen(result: result, nombre: _nameCtrl.text.trim(), fecha: _fecha));
+    }
   }
 
   @override
