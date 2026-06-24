@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:arcanos_mayores/services/notification_service.dart';
 import '../../theme.dart';
 import '../../services/database_service.dart';
 import '../../services/update_service.dart';
+import '../../services/theme_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -14,6 +18,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
   UpdateStatus _updateStatus = UpdateStatus.idle;
   UpdateInfo? _updateInfo;
   double _downloadProgress = 0;
+  final _apiKeyController = TextEditingController();
+  bool _notificationsEnabled = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  @override
+  void dispose() {
+    _apiKeyController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    _apiKeyController.text = prefs.getString('arcano_ai_key') ?? '';
+    _notificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
+    if (mounted) setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +54,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Text('Arcanos Mayores', style: TextStyle(fontSize: 14, color: Colors.white70)),
           ])),
         const SizedBox(height: 20),
+        _Card(title: 'Apariencia', icon: Icons.palette_outlined,
+          child: _buildThemeSelector()),
+        const SizedBox(height: 12),
+        _Card(title: 'Carta del Dia', icon: Icons.notifications_outlined,
+          child: _buildNotificationToggle()),
+        const SizedBox(height: 12),
+        _Card(title: 'Clave API (NVIDIA)', icon: Icons.key,
+          child: _buildApiKeyField()),
+        const SizedBox(height: 12),
         _Card(title: 'Acerca de', icon: Icons.info_outline,
           child: const Text('Herramienta terapeutica basada en PsicoTarot, Linea de Vida, Regresiones y Constelaciones Familiares.')),
         const SizedBox(height: 12),
@@ -41,6 +75,59 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _Card(title: 'Gestion de Datos', icon: Icons.storage,
           child: TextButton.icon(onPressed: () => _borrar(context), icon: const Icon(Icons.delete_forever, color: Colors.red), label: const Text('Limpiar datos', style: TextStyle(color: Colors.red)))),
       ]),
+    );
+  }
+
+  Widget _buildThemeSelector() {
+    final themeProvider = context.watch<ThemeProvider>();
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      SegmentedButton<ThemeMode>(
+        segments: const [
+          ButtonSegment(value: ThemeMode.system, icon: Icon(Icons.brightness_auto), label: Text('Auto')),
+          ButtonSegment(value: ThemeMode.light, icon: Icon(Icons.light_mode), label: Text('Claro')),
+          ButtonSegment(value: ThemeMode.dark, icon: Icon(Icons.dark_mode), label: Text('Oscuro')),
+        ],
+        selected: {themeProvider.mode},
+        onSelectionChanged: (mode) => themeProvider.setMode(mode.first),
+      ),
+    ]);
+  }
+
+  Widget _buildNotificationToggle() {
+    return SwitchListTile(
+      title: const Text('Recordatorio diario'),
+      subtitle: const Text('Notificacion cada manana con tu carta del dia'),
+      value: _notificationsEnabled,
+      onChanged: (v) async {
+        setState(() => _notificationsEnabled = v);
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('notifications_enabled', v);
+        if (v) {
+          await NotificationService.scheduleDailyCard();
+        } else {
+          await NotificationService.cancelScheduled();
+        }
+      },
+      contentPadding: EdgeInsets.zero,
+    );
+  }
+
+  Widget _buildApiKeyField() {
+    return TextField(
+      controller: _apiKeyController,
+      decoration: const InputDecoration(
+        hintText: 'Ingresa tu API key de NVIDIA',
+        isDense: true,
+      ),
+      onSubmitted: (v) async {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('arcano_ai_key', v);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('API key guardada')),
+          );
+        }
+      },
     );
   }
 
