@@ -16,35 +16,18 @@ class LifeLineCalculator {
     // Arcano 2 - ELLO: Suma de digitos de la fecha
     int a2 = sumarDigitosFecha(fechaNacimiento.day, fechaNacimiento.month, fechaNacimiento.year);
 
-    // Arcano 3 - MENTE
-    // Si el resultado del año (1+9+8+4=22) es numero maestro (11,22),
-    // se usa el mes de nacimiento (PDF: "Si el resultado del año no
-    // puede reducirse se utiliza el MES de nacimiento")
-    int sumaAnno = 0;
-    int y = fechaNacimiento.year;
-    while (y > 0) { sumaAnno += y % 10; y ~/= 10; }
-    int a3;
-    bool usaMes = false;
-    final annoReducido = reduccionTeosofica(sumaAnno);
-    if (annoReducido == 11 || annoReducido == 22) {
-      a3 = fechaNacimiento.month;
-      usaMes = true;
-    } else {
-      a3 = a2;
-      while (a3 > 9 && a3 != 11 && a3 != 22) {
-        int s = 0;
-        int t = a3;
-        while (t > 0) { s += t % 10; t ~/= 10; }
-        a3 = s;
-      }
+    // Arcano 3 - MENTE: Reducir el total de la fecha a un solo digito (1-9)
+    int a3 = a2;
+    // Siempre reducir a digito unico (1-9), respetando 11,22
+    while (a3 > 9 && a3 != 11 && a3 != 22) {
+      int s = 0;
+      int t = a3;
+      while (t > 0) { s += t % 10; t ~/= 10; }
+      a3 = s;
     }
 
-    // Arcano 4 - REALIZACION
-    // PDF: "Si utilizo el MES de nacimiento en el tercer Arcano,
-    // se suma el primero y el segundo, y se reduce de ser necesario"
-    int a4 = usaMes
-        ? reduccionTeosofica(a1 + a2)
-        : reduccionTeosofica(a1 + a3);
+    // Arcano 4 - REALIZACION: a1 + a3
+    int a4 = reduccionTeosofica(a1 + a3);
 
     // Arcano 5 - SINTESIS: Suma de todos
     int a5 = reduccionTeosofica(a1 + a2 + a3 + a4);
