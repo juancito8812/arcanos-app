@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:arcanos_mayores/services/notification_service.dart';
 import '../../theme.dart';
 import '../../services/database_service.dart';
@@ -20,11 +21,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
   double _downloadProgress = 0;
   final _apiKeyController = TextEditingController();
   bool _notificationsEnabled = true;
+  String _appVersion = '';
 
   @override
   void initState() {
     super.initState();
     _loadSettings();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final info = await PackageInfo.fromPlatform();
+    if (mounted) setState(() => _appVersion = info.version);
   }
 
   @override
@@ -47,11 +55,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(padding: const EdgeInsets.all(16), children: [
         Container(padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(gradient: const LinearGradient(colors: [AppTheme.purplePrimary, AppTheme.purpleDark], begin: Alignment.topLeft, end: Alignment.bottomRight), borderRadius: BorderRadius.circular(20)),
-          child: const Column(children: [
-            Icon(Icons.auto_awesome, color: AppTheme.goldAccent, size: 40),
-            SizedBox(height: 8),
-            Text('PsicoTarot v1.0.0', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
-            Text('Arcanos Mayores', style: TextStyle(fontSize: 14, color: Colors.white70)),
+          child: Column(children: [
+            const Icon(Icons.auto_awesome, color: AppTheme.goldAccent, size: 40),
+            const SizedBox(height: 8),
+            Text('PsicoTarot v$_appVersion', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+            const Text('Arcanos Mayores', style: TextStyle(fontSize: 14, color: Colors.white70)),
           ])),
         const SizedBox(height: 20),
         _Card(title: 'Apariencia', icon: Icons.palette_outlined,
