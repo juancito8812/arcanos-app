@@ -51,8 +51,8 @@ class _DestinyMatrixScreenState extends State<DestinyMatrixScreen> {
               children: [
                 Icon(Icons.auto_awesome, size: 64, color: AppTheme.goldAccent.withValues(alpha: 0.5)),
                 const SizedBox(height: 16),
-                const Text('Completa tu perfil en Mi Linea de Vida para ver tu Matriz del Destino.',
-                  textAlign: TextAlign.center, style: TextStyle(fontSize: 16, color: Colors.grey)),
+                Text('Completa tu perfil en Mi Linea de Vida para ver tu Matriz del Destino.',
+                  textAlign: TextAlign.center, style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
               ],
             ),
           ),
@@ -69,7 +69,7 @@ class _DestinyMatrixScreenState extends State<DestinyMatrixScreen> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Center(
             child: Text('Nacimiento: ${DateFormat('dd/MM/yyyy').format(_matrix!.birthDate)}',
-              style: const TextStyle(fontSize: 14, color: Colors.grey)),
+              style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
           ),
           const SizedBox(height: 20),
           ..._matrix!.positions.map((pos) => _PositionCard(pos: pos)),
