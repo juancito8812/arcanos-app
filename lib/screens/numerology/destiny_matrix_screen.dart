@@ -116,15 +116,19 @@ class _PositionCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(children: [
-          Container(
-            width: 48, height: 48,
-            decoration: BoxDecoration(
-              color: AppTheme.purplePrimary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Center(
-              child: Text(pos.nombreRomano,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppTheme.goldAccent)),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.asset(
+              'assets/cards/arcano_${pos.numero}.png',
+              width: 72, height: 103, fit: BoxFit.cover,
+              errorBuilder: (c, e, s) => Container(
+                width: 72, height: 103,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(colors: [AppTheme.purplePrimary, AppTheme.purpleDark]),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Center(child: Text(pos.nombreRomano, style: const TextStyle(color: AppTheme.goldAccent, fontSize: 22, fontWeight: FontWeight.bold))),
+              ),
             ),
           ),
           const SizedBox(width: 16),

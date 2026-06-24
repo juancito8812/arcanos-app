@@ -37,6 +37,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/cards/
+    - assets/cards/minor/
     - assets/icon_original.png
 
 flutter_launcher_icons:

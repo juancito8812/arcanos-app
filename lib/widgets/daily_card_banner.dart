@@ -138,15 +138,19 @@ class _DailyCardBannerState extends State<DailyCardBanner> {
             border: Border.all(color: AppTheme.goldAccent.withValues(alpha: 0.3)),
           ),
           child: Row(children: [
-            Container(
-              width: 56, height: 56,
-              decoration: BoxDecoration(
-                color: AppTheme.purplePrimary.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Center(
-                child: Text(_card!.arcanoNombreRomano,
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppTheme.goldAccent)),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.asset(
+                'assets/cards/arcano_${_card!.arcanoNumero}.png',
+                width: 52, height: 74, fit: BoxFit.cover,
+                errorBuilder: (c, e, s) => Container(
+                  width: 52, height: 74,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(colors: [AppTheme.purplePrimary, AppTheme.purpleDark]),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Center(child: Text(_card!.arcanoNombreRomano, style: const TextStyle(color: AppTheme.goldAccent, fontSize: 16, fontWeight: FontWeight.bold))),
+                ),
               ),
             ),
             const SizedBox(width: 16),
@@ -185,17 +189,28 @@ class _DailyCardBannerState extends State<DailyCardBanner> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: AppTheme.purplePrimary.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(20),
-            ),
+          Center(
             child: Column(children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.asset(
+                  'assets/cards/arcano_${_card!.arcanoNumero}.png',
+                  width: 180, height: 258, fit: BoxFit.cover,
+                  errorBuilder: (c, e, s) => Container(
+                    width: 180, height: 258,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(colors: [AppTheme.purplePrimary, AppTheme.purpleDark]),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Center(child: Text(_card!.arcanoNombreRomano,
+                      style: const TextStyle(color: AppTheme.goldAccent, fontSize: 40, fontWeight: FontWeight.bold))),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
               Text(_card!.arcanoNombreRomano,
-                style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: AppTheme.goldAccent)),
-              const SizedBox(height: 12),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.goldAccent, letterSpacing: 2)),
+              const SizedBox(height: 4),
               Text(_card!.arcanoNombre,
                 style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.purplePrimary)),
             ]),
