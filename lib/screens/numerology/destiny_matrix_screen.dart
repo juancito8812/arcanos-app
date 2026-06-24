@@ -12,24 +12,36 @@ class DestinyMatrixScreen extends StatefulWidget {
   State<DestinyMatrixScreen> createState() => _DestinyMatrixScreenState();
 }
 
-class _DestinyMatrixScreenState extends State<DestinyMatrixScreen> {
+class _DestinyMatrixScreenState extends State<DestinyMatrixScreen> with WidgetsBindingObserver {
   DestinyMatrix? _matrix;
   bool _loading = true;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _load();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _load();
   }
 
   Future<void> _load() async {
     final perfiles = await DatabaseService.obtenerPerfiles();
-    if (perfiles.isNotEmpty) {
-      final first = perfiles.first;
-      final birthDate = DateTime.parse(first['fechaNacimiento'] as String);
-      _matrix = DestinyMatrixCalculator.calculate(birthDate);
-    }
-    setState(() => _loading = false);
+    setState(() {
+      _matrix = perfiles.isNotEmpty
+          ? DestinyMatrixCalculator.calculate(DateTime.parse(perfiles.first['fechaNacimiento'] as String))
+          : null;
+      _loading = false;
+    });
   }
 
   @override

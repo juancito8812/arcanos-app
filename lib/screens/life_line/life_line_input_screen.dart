@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../theme.dart';
+import '../../models/life_line.dart';
 import '../../services/life_line_calculator.dart';
+import '../../services/database_service.dart';
 import '../../utils/animated_widgets.dart';
 import '../../utils/route_transitions.dart';
 import 'life_line_result_screen.dart';
@@ -83,6 +85,19 @@ class _LifeLineInputScreenState extends State<LifeLineInputScreen> {
     if (d != null) setState(() => _fecha = d);
   }
 
+  Future<void> _guardarPerfil(String name, LifeLineResult result) async {
+    await DatabaseService.guardarPerfil({
+      'nombre': name,
+      'fechaNacimiento': _fecha.toIso8601String(),
+      'arcano1': result.arcanos[0].arcano.numero,
+      'arcano2': result.arcanos[1].arcano.numero,
+      'arcano3': result.arcanos[2].arcano.numero,
+      'arcano4': result.arcanos[3].arcano.numero,
+      'arcano5': result.arcanos[4].arcano.numero,
+      'fechaCreacion': DateTime.now().toIso8601String(),
+    });
+  }
+
   void _calc() async {
     final error = _validateName(_nameCtrl.text);
     if (error != null) {
@@ -97,6 +112,7 @@ class _LifeLineInputScreenState extends State<LifeLineInputScreen> {
     setState(() => _loading = false);
     if (mounted && result != null) {
       await _saveName(name);
+      await _guardarPerfil(name, result);
       navigateWithSlide(context, LifeLineResultScreen(result: result, nombre: name, fecha: _fecha));
     }
   }

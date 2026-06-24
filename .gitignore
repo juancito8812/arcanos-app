@@ -31,6 +31,9 @@ android/key.properties
 android/**/upload-keystore.jks
 *.jks
 
+# Windows reserved names
+nul
+
 # Misc
 *.bak
 *.orig
