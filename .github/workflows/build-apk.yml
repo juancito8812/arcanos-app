@@ -2,76 +2,32 @@ name: Build APK
 
 on:
   push:
-    branches: [ main, master ]
-    tags:
-      - 'v*'
+    branches: [main, master, feature/*]
   pull_request:
-    branches: [ main, master ]
-  workflow_dispatch:
-
-permissions:
-  contents: write
+    branches: [main, master]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
         with:
-          fetch-depth: 0
+          distribution: 'zulu'
+          java-version: '17'
+
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.29.2'
-          channel: 'stable'
-      - name: Install dependencies
-        run: flutter pub get
-      - name: Analyze project
-        run: flutter analyze
-      - name: Decode Keystore
-        run: |
-          if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
-            echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
-          fi
-      - name: Build APK
-        run: flutter build apk --release
-        env:
-          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-      - name: Upload APK as artifact
-        uses: actions/upload-artifact@v4
+          channel: stable
+
+      - run: flutter pub get
+
+      - run: flutter analyze
+
+      - run: flutter build apk --debug
+
+      - uses: actions/upload-artifact@v4
         with:
-          name: psico-tarot-apk
-          path: build/app/outputs/flutter-apk/*.apk
-      - name: Get version from tag
-        if: startsWith(github.ref, 'refs/tags/v')
-        id: get_version
-        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-      - name: Generate Changelog
-        if: startsWith(github.ref, 'refs/tags/v')
-        id: changelog
-        run: |
-          PREV_TAG=$(git tag --sort=-version:refname | grep -E '^v' | sed -n '2p' || true)
-          {
-            echo "## Cambios en esta version"
-            echo ""
-            if [ -z "$PREV_TAG" ]; then
-              echo "* Primer release"
-            else
-              git log --no-decorate "$PREV_TAG..HEAD" --format="- %s" || echo "* Initial release"
-            fi
-            echo ""
-            echo "---"
-            echo "Descarga el APK e instalalo en tu dispositivo Android."
-          } > changelog.md
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          cat changelog.md >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-      - name: Create Release
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v3
-        with:
-          name: "PsicoTarot v${{ steps.get_version.outputs.version }}"
-          body_path: changelog.md
-          files: build/app/outputs/flutter-apk/*.apk
-          generate_release_notes: true
+          name: app-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
