@@ -45,7 +45,7 @@
 - **Idioma:** Español para todo (código, comentarios, UI, commits)
 - **Estilo:** Sin comentarios en código, nombres descriptivos en español
 - **Imágenes:** Tarot de Marseille (Jean Dodal 1715 para mayores, Lequart/Conver para menores)
-- **Git:** Commits en español, rama activa `feature/phase1-bundle`
+- **Git:** Commits en español, rama activa `master` (feature/phase1-bundle mergeado)
 - **APK:** `flutter build apk --release` → `build/app/outputs/flutter-apk/app-release.apk`
 - **Análisis:** `flutter analyze` — Sin errores permitidos, 1 info preexistente (`use_build_context_synchronously`)
 
