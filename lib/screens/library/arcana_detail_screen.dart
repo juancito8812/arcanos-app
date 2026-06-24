@@ -15,21 +15,25 @@ class ArcanaDetailScreen extends StatelessWidget {
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.all(16),
         child: Column(children: [
-          // Hero card image
           StaggeredFadeIn(index: 0, child: _CardImage(arcano: arcano)),
           const SizedBox(height: 20),
-          // Name and archetype
           StaggeredFadeIn(index: 1, child: _Title(arcano: arcano)),
           const SizedBox(height: 20),
-          // Info sections
           StaggeredFadeIn(index: 2, child: _Sec(title: 'Ley Espiritual', body: arcano.leyEspiritual, icon: Icons.lightbulb_outline)),
           const SizedBox(height: 12),
           StaggeredFadeIn(index: 3, child: _Sec(title: 'Leccion de Vida', body: arcano.leccionVida, icon: Icons.school)),
           const SizedBox(height: 12),
-          StaggeredFadeIn(index: 4, child: _Sec(title: 'Miedo Asociado', body: arcano.miedoAsociado, icon: Icons.psychology)),
+          StaggeredFadeIn(index: 4, child: _Sec(title: 'Arquetipo', body: arcano.arquetipo, icon: Icons.psychology)),
+          const SizedBox(height: 12),
+          StaggeredFadeIn(index: 5, child: _Sec(title: 'Desafio', body: arcano.desafio, icon: Icons.warning_amber_rounded)),
+          const SizedBox(height: 12),
+          StaggeredFadeIn(index: 6, child: _Sec(title: 'Perspectiva Transgeneracional', body: arcano.perspectivaTransgeneracional, icon: Icons.account_tree)),
+          const SizedBox(height: 12),
+          StaggeredFadeIn(index: 7, child: _Sec(title: 'Significado en esta Posicion', body: arcano.significadoPosicion, icon: Icons.explore)),
+          const SizedBox(height: 12),
+          StaggeredFadeIn(index: 8, child: _Sec(title: 'Afirmacion Sanadora', body: arcano.afirmacionSanadora, icon: Icons.auto_awesome)),
           const SizedBox(height: 20),
-          // Chips
-          StaggeredFadeIn(index: 5, child: _Chips(arcano: arcano)),
+          StaggeredFadeIn(index: 9, child: _Chips(arcano: arcano)),
           const SizedBox(height: 30),
         ]),
       ),
@@ -80,8 +84,8 @@ class _Title extends StatelessWidget {
       Text(arcano.nombreCompleto,
         style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.purplePrimary, letterSpacing: 0.5)),
       const SizedBox(height: 4),
-      Text(arcano.arquetipo,
-        style: TextStyle(fontSize: 14, color: Colors.grey[600], fontStyle: FontStyle.italic)),
+      Text('Elemento: ${arcano.elemento}  |  Polaridad: ${arcano.polaridad}  |  Nivel ${arcano.nivel}',
+        style: TextStyle(fontSize: 13, color: Colors.grey[600], fontStyle: FontStyle.italic)),
     ]);
   }
 }
@@ -134,6 +138,8 @@ class _Chips extends StatelessWidget {
       _Chip(label: arcano.polaridad, color: Colors.blue, icon: Icons.balance),
       const SizedBox(width: 12),
       _Chip(label: arcano.valorNuclear.toString(), color: Colors.green, icon: Icons.tag),
+      const SizedBox(width: 12),
+      _Chip(label: arcano.colorAsociado, color: Colors.purple, icon: Icons.palette),
     ]);
   }
 }

@@ -1,5 +1,4 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz_data;
 
@@ -30,8 +29,7 @@ class NotificationService {
   static Future<void> scheduleDailyCard() async {
     await _plugin.cancelAll();
 
-    final location = await FlutterNativeTimezone.getLocalTimezone();
-    final tzLocation = tz.getLocation(location);
+    final tzLocation = tz.local;
     final now = tz.TZDateTime.now(tzLocation);
 
     var scheduledDate = tz.TZDateTime(

@@ -50,7 +50,7 @@ class LifeLineDetailScreen extends StatelessWidget {
             _Section(title: 'Ley Espiritual', body: arcano.leyEspiritual),
             _Section(title: 'Leccion de Vida', body: arcano.leccionVida),
             _Section(title: 'Arquetipo', body: '${arcano.arquetipo} | ${arcano.elemento} | ${arcano.polaridad}'),
-            _Section(title: 'Desafio', body: arcano.miedoAsociado),
+            _Section(title: 'Desafio', body: arcano.desafio),
           ],
           _Section(title: 'Significado en esta posicion', body: pos.significado),
         ]),

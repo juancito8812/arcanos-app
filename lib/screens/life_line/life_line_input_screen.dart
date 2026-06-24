@@ -47,6 +47,16 @@ class _LifeLineInputScreenState extends State<LifeLineInputScreen> {
     if (_savedNames.length > 10) _savedNames = _savedNames.sublist(0, 10);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('saved_names', _savedNames);
+    await prefs.setString('saved_date_$trimmed', _fecha.toIso8601String());
+  }
+
+  Future<void> _loadDateForName(String name) async {
+    final prefs = await SharedPreferences.getInstance();
+    final dateStr = prefs.getString('saved_date_$name');
+    if (dateStr != null) {
+      final d = DateTime.tryParse(dateStr);
+      if (d != null) setState(() => _fecha = d);
+    }
   }
 
   List<String> _filteredSuggestions() {
@@ -158,6 +168,7 @@ class _LifeLineInputScreenState extends State<LifeLineInputScreen> {
                     onTap: () {
                       _nameCtrl.text = name;
                       _nameCtrl.selection = TextSelection.fromPosition(TextPosition(offset: name.length));
+                      _loadDateForName(name);
                       setState(() => _showSuggestions = false);
                     },
                   );
