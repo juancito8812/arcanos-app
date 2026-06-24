@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:arcanos_mayores/models/destiny_matrix.dart';
 import 'package:arcanos_mayores/services/destiny_matrix_calculator.dart';
 
 void main() {
