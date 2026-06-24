@@ -95,14 +95,14 @@ class _PosCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
               child: Image.asset(
                 'assets/cards/arcano_${pos.arcano.numero}.png',
-                width: 55, height: 80, fit: BoxFit.cover,
+                width: 80, height: 115, fit: BoxFit.cover,
                 errorBuilder: (c, e, s) => Container(
-                  width: 55, height: 80,
+                  width: 80, height: 115,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(colors: [AppTheme.purplePrimary, AppTheme.purpleDark]),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Center(child: Text(pos.arcano.nombreRomano, style: const TextStyle(color: AppTheme.goldAccent, fontSize: 16, fontWeight: FontWeight.bold))),
+                  child: Center(child: Text(pos.arcano.nombreRomano, style: const TextStyle(color: AppTheme.goldAccent, fontSize: 20, fontWeight: FontWeight.bold))),
                 ),
               ),
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../theme.dart';
 import '../../services/life_line_calculator.dart';
 import '../../utils/animated_widgets.dart';
@@ -17,10 +18,42 @@ class _LifeLineInputScreenState extends State<LifeLineInputScreen> {
   DateTime _fecha = DateTime(1990, 1, 1);
   bool _loading = false;
   String? _nameError;
+  List<String> _savedNames = [];
+  bool _showSuggestions = false;
 
   static final _nameRegex = RegExp(r"^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s.'-]+$");
 
+  @override
+  void initState() {
+    super.initState();
+    _loadNames();
+    _nameFocus.addListener(() {
+      if (!_nameFocus.hasFocus) setState(() => _showSuggestions = false);
+    });
+  }
+
   @override void dispose() { _nameCtrl.dispose(); _nameFocus.dispose(); super.dispose(); }
+
+  Future<void> _loadNames() async {
+    final prefs = await SharedPreferences.getInstance();
+    _savedNames = prefs.getStringList('saved_names') ?? [];
+  }
+
+  Future<void> _saveName(String name) async {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) return;
+    _savedNames.remove(trimmed);
+    _savedNames.insert(0, trimmed);
+    if (_savedNames.length > 10) _savedNames = _savedNames.sublist(0, 10);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('saved_names', _savedNames);
+  }
+
+  List<String> _filteredSuggestions() {
+    final query = _nameCtrl.text.trim().toLowerCase();
+    if (query.isEmpty) return _savedNames;
+    return _savedNames.where((n) => n.toLowerCase().contains(query)).toList();
+  }
 
   String? _validateName(String value) {
     final v = value.trim();
@@ -49,10 +82,12 @@ class _LifeLineInputScreenState extends State<LifeLineInputScreen> {
     }
     setState(() { _loading = true; _nameError = null; });
     await Future.delayed(const Duration(milliseconds: 600));
-    final result = LifeLineCalculator.calcular(nombreCompleto: _nameCtrl.text.trim(), fechaNacimiento: _fecha);
+    final name = _nameCtrl.text.trim();
+    final result = LifeLineCalculator.calcular(nombreCompleto: name, fechaNacimiento: _fecha);
     setState(() => _loading = false);
     if (mounted && result != null) {
-      navigateWithSlide(context, LifeLineResultScreen(result: result, nombre: _nameCtrl.text.trim(), fecha: _fecha));
+      await _saveName(name);
+      navigateWithSlide(context, LifeLineResultScreen(result: result, nombre: name, fecha: _fecha));
     }
   }
 
@@ -97,8 +132,38 @@ class _LifeLineInputScreenState extends State<LifeLineInputScreen> {
             ),
             onChanged: (_) {
               if (_nameError != null) setState(() => _nameError = _validateName(_nameCtrl.text));
+              setState(() => _showSuggestions = _savedNames.isNotEmpty);
             },
+            onTap: () => setState(() => _showSuggestions = _savedNames.isNotEmpty),
           )),
+          if (_showSuggestions && _filteredSuggestions().isNotEmpty)
+            StaggeredFadeIn(index: 1, child: Container(
+              margin: const EdgeInsets.only(top: 4),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppTheme.purplePrimary.withAlpha(30)),
+              ),
+              constraints: const BoxConstraints(maxHeight: 180),
+              child: ListView.builder(
+                shrinkWrap: true,
+                padding: EdgeInsets.zero,
+                itemCount: _filteredSuggestions().length,
+                itemBuilder: (c, i) {
+                  final name = _filteredSuggestions()[i];
+                  return ListTile(
+                    dense: true,
+                    leading: const Icon(Icons.history, size: 18, color: AppTheme.purplePrimary),
+                    title: Text(name, style: const TextStyle(fontSize: 14)),
+                    onTap: () {
+                      _nameCtrl.text = name;
+                      _nameCtrl.selection = TextSelection.fromPosition(TextPosition(offset: name.length));
+                      setState(() => _showSuggestions = false);
+                    },
+                  );
+                },
+              ),
+            )),
           const SizedBox(height: 16),
           StaggeredFadeIn(index: 2, child: InkWell(
             onTap: _pickDate,
