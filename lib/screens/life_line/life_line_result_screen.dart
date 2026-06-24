@@ -3,6 +3,8 @@ import '../../theme.dart';
 import '../../models/life_line.dart';
 import '../../data/arcanos_data.dart';
 import '../../utils/animated_widgets.dart';
+import '../../utils/route_transitions.dart';
+import 'life_line_detail_screen.dart';
 
 class LifeLineResultScreen extends StatelessWidget {
   final LifeLineResult result;
@@ -82,48 +84,52 @@ class _PosCard extends StatelessWidget {
       elevation: 3,
       shadowColor: AppTheme.purplePrimary.withAlpha(40),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(children: [
-          // Card image
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Image.asset(
-              'assets/cards/arcano_${pos.arcano.numero}.png',
-              width: 55, height: 80, fit: BoxFit.cover,
-              errorBuilder: (c, e, s) => Container(
-                width: 55, height: 80,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [AppTheme.purplePrimary, AppTheme.purpleDark]),
-                  borderRadius: BorderRadius.circular(10),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () => navigateWithScale(context, LifeLineDetailScreen(pos: pos)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(children: [
+            // Card image
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.asset(
+                'assets/cards/arcano_${pos.arcano.numero}.png',
+                width: 55, height: 80, fit: BoxFit.cover,
+                errorBuilder: (c, e, s) => Container(
+                  width: 55, height: 80,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(colors: [AppTheme.purplePrimary, AppTheme.purpleDark]),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Center(child: Text(pos.arcano.nombreRomano, style: const TextStyle(color: AppTheme.goldAccent, fontSize: 16, fontWeight: FontWeight.bold))),
                 ),
-                child: Center(child: Text(pos.arcano.nombreRomano, style: const TextStyle(color: AppTheme.goldAccent, fontSize: 16, fontWeight: FontWeight.bold))),
               ),
             ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            // Position name with number badge
-            Row(children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: AppTheme.goldAccent.withAlpha(30),
-                  borderRadius: BorderRadius.circular(8),
+            const SizedBox(width: 14),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              // Position name with number badge
+              Row(children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: AppTheme.goldAccent.withAlpha(30),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text('#$index', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppTheme.purplePrimary)),
                 ),
-                child: Text('#$index', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppTheme.purplePrimary)),
-              ),
-              const SizedBox(width: 8),
-              Text(pos.nombre, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.purplePrimary)),
-            ]),
-            const SizedBox(height: 4),
-            Text('Edad ${pos.edadPeriodo}', style: TextStyle(fontSize: 11, color: Colors.grey[500])),
-            if (arcano != null) ...[
-              const SizedBox(height: 6),
-              Text(arcano.leyEspiritual, style: TextStyle(fontSize: 12, color: Colors.grey[600], fontStyle: FontStyle.italic)),
-            ],
-          ])),
-        ]),
+                const SizedBox(width: 8),
+                Text(pos.nombre, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.purplePrimary)),
+              ]),
+              const SizedBox(height: 4),
+              Text('Edad ${pos.edadPeriodo}', style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+              if (arcano != null) ...[
+                const SizedBox(height: 6),
+                Text(arcano.leyEspiritual, style: TextStyle(fontSize: 12, color: Colors.grey[600], fontStyle: FontStyle.italic)),
+              ],
+            ])),
+          ]),
+        ),
       ),
     );
   }
