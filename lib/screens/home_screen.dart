@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme.dart';
 import '../utils/route_transitions.dart';
 import '../utils/animated_widgets.dart';
+import '../widgets/daily_card_banner.dart';
 import 'life_line/life_line_input_screen.dart';
 import 'tarot/tarot_menu_screen.dart';
 import 'regressions/regression_screen.dart';
@@ -31,7 +32,9 @@ class HomeScreen extends StatelessWidget {
           child: Column(children: [
             // Header
             StaggeredFadeIn(index: 0, child: _Header()),
-            const SizedBox(height: 28),
+            const SizedBox(height: 20),
+            StaggeredFadeIn(index: 0, child: const DailyCardBanner()),
+            const SizedBox(height: 20),
             // Grid
             GridView.builder(
               shrinkWrap: true,

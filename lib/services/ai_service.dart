@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../data/arcanos_data.dart';
 import '../models/arcano.dart';
 
 class AIService {
@@ -17,6 +18,12 @@ class AIService {
     if (_buildTimeKey != null && _buildTimeKey!.isNotEmpty) return _buildTimeKey;
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('arcano_ai_key');
+  }
+
+  static Future<String> interpretDailyCardByNumero(int arcanoNumero, String arcanoNombre) async {
+    final arcano = getArcanoByNumero(arcanoNumero);
+    if (arcano == null) return 'Arcano no encontrado.';
+    return interpretDailyCard(arcano, null);
   }
 
   static Future<String> interpretDailyCard(Arcano arcano, String? lifeLinePeriod) async {
