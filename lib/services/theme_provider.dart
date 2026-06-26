@@ -2,23 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeProvider extends ChangeNotifier {
-  static const _key = 'theme_mode';
+  static const _modeKey = 'theme_mode';
+  static const _paletteKey = 'selected_palette';
+
+  static const List<String> palettes = ['purple', 'blue', 'green', 'red', 'amber'];
 
   ThemeMode _mode = ThemeMode.system;
+  String _palette = 'purple';
 
   ThemeMode get mode => _mode;
+  String get palette => _palette;
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
-    final value = prefs.getString(_key) ?? 'system';
-    _mode = _themeModeFromString(value);
+    final modeValue = prefs.getString(_modeKey) ?? 'system';
+    _mode = _themeModeFromString(modeValue);
+    _palette = prefs.getString(_paletteKey) ?? 'purple';
     notifyListeners();
   }
 
   Future<void> setMode(ThemeMode mode) async {
     _mode = mode;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_key, _themeModeToString(mode));
+    await prefs.setString(_modeKey, _themeModeToString(mode));
+    notifyListeners();
+  }
+
+  Future<void> setPalette(String palette) async {
+    _palette = palette;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_paletteKey, palette);
     notifyListeners();
   }
 
