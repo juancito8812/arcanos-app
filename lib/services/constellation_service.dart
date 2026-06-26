@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:http/http.dart' as http;
 import '../data/arcanos_data.dart';
-import '../data/healing_phrases_data.dart';
 import '../models/arcano.dart';
 import '../models/constellation_session.dart';
 import '../models/family_member.dart';
