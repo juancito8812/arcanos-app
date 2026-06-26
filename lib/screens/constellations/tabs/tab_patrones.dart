@@ -199,8 +199,7 @@ class _TabPatronesState extends State<TabPatrones> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          gradient: LinearGradient(
-            colors: [Color(gradient[0].value), Color(gradient[1].value)],
+          gradient: LinearGradient(colors: gradient,
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),

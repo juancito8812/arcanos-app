@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../../theme.dart';
-import '../../../data/arcanos_data.dart';
 import '../../../models/arcano.dart';
 import '../../../models/constellation_session.dart';
 import '../../../models/family_member.dart';
@@ -22,6 +21,7 @@ class _WheelEntry {
 }
 
 class TabRueda extends StatefulWidget {
+  const TabRueda({super.key});
   @override
   State<TabRueda> createState() => _TabRuedaState();
 }
@@ -33,7 +33,7 @@ class _TabRuedaState extends State<TabRueda> with TickerProviderStateMixin {
 
   final _temaController = TextEditingController();
   List<FamilyMember> _miembros = [];
-  Map<String, FamilyMember?> _selecciones = {};
+  final Map<String, FamilyMember?> _selecciones = {};
   List<_WheelEntry> _entries = [];
 
   late AnimationController _wheelAc;
