@@ -84,4 +84,4 @@ Basado en el manual "Formación de PsicoTarot Personal, Transpersonal y Sistémi
 
 https://github.com/juancito8812/arcanos-app
 
-Versión actual: 2.2.1+6
+Versión actual: 2.2.2+7

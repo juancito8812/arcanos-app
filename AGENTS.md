@@ -62,5 +62,17 @@
 3. DestinyMatrixScreen lee el primer perfil de BD y calcula matriz
 4. DestinyMatrixScreen usa WidgetsBindingObserver para recargar al reanudar
 
+## Deploy
+```bash
+# 1. Bump version en pubspec.yaml
+# 2. Build
+flutter build apk --release
+# 3. Commit + push
+git add -A && git commit -m "checkpoint: bump version X.X.X"
+git push origin master
+# 4. Release
+gh release create vX.X.X "build/app/outputs/flutter-apk/app-release.apk#app-release.apk" --title "vX.X.X" --notes "## vX.X.X%0A%0A### Descripción" --repo juancito8812/arcanos-app
+```
+
 ## Handoff
 Ver `docs/handoff-actual.md` para estado completo.
