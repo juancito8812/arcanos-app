@@ -104,6 +104,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
         selected: {themeProvider.mode},
         onSelectionChanged: (mode) => themeProvider.setMode(mode.first),
       ),
+      const SizedBox(height: 16),
+      const Text('Paleta de color', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppTheme.purplePrimary)),
+      const SizedBox(height: 8),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: ThemeProvider.palettes.map((p) {
+          final selected = themeProvider.palette == p;
+          final seed = Color(AppTheme.paletteSeeds[p]!);
+          return GestureDetector(
+            onTap: () => themeProvider.setPalette(p),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 44, height: 44,
+              decoration: BoxDecoration(
+                color: seed,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: selected ? AppTheme.goldAccent : seed.withAlpha(100),
+                  width: selected ? 3 : 1,
+                ),
+                boxShadow: selected
+                    ? [BoxShadow(color: seed.withAlpha(80), blurRadius: 8, spreadRadius: 1)]
+                    : null,
+              ),
+              child: selected
+                  ? const Icon(Icons.check, color: Colors.white, size: 22)
+                  : null,
+            ),
+          );
+        }).toList(),
+      ),
     ]);
   }
 
