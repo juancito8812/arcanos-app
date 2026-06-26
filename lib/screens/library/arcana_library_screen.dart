@@ -15,7 +15,7 @@ class ArcanaLibraryScreen extends StatefulWidget {
   State<ArcanaLibraryScreen> createState() => _ArcanaLibraryScreenState();
 }
 
-class _ArcanaLibraryScreenState extends State<ArcanaLibraryScreen> with SingleTickerProviderStateMixin {
+class _ArcanaLibraryScreenState extends State<ArcanaLibraryScreen> with TickerProviderStateMixin {
   late TabController _tabCtrl;
   final _searchCtrl = TextEditingController();
   late AnimationController _ac;
@@ -164,7 +164,7 @@ class _CardMayor extends StatelessWidget {
                 child: SizedBox(
                   width: double.infinity,
                   child: Image.asset(
-                    'assets/cards/arcano_${arcano.numero}.png',
+                    'assets/cards/arcano_${arcano.numero}.jpg',
                     fit: BoxFit.cover,
                     errorBuilder: (c, e, s) => Container(
                       decoration: BoxDecoration(
@@ -202,36 +202,6 @@ class _CardMenor extends StatelessWidget {
   final VoidCallback onTap;
   const _CardMenor({required this.arcano, required this.onTap});
 
-  String _paloAsset(String palo) {
-    switch (palo.toLowerCase()) {
-      case 'copas': return 'Cups';
-      case 'bastos': return 'Wands';
-      case 'espadas': return 'Swords';
-      case 'oros': return 'Pents';
-      default: return 'Cups';
-    }
-  }
-
-  String _rangoAsset(String rango) {
-    switch (rango) {
-      case 'as': return '01';
-      case '2': return '02';
-      case '3': return '03';
-      case '4': return '04';
-      case '5': return '05';
-      case '6': return '06';
-      case '7': return '07';
-      case '8': return '08';
-      case '9': return '09';
-      case '10': return '10';
-      case 'sota': return '11';
-      case 'caballo': return '12';
-      case 'reina': return '13';
-      case 'rey': return '14';
-      default: return '01';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -248,7 +218,7 @@ class _CardMenor extends StatelessWidget {
               child: SizedBox(
                 width: double.infinity,
                 child: Image.asset(
-                  'assets/cards/minor/${_paloAsset(arcano.palo)}${_rangoAsset(arcano.rango)}.jpg',
+                  'assets/cards/arcano_${arcano.imagenNumero}.jpg',
                   fit: BoxFit.cover,
                   errorBuilder: (c, e, s) => Container(
                     decoration: BoxDecoration(

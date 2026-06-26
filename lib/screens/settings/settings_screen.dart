@@ -20,6 +20,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   UpdateInfo? _updateInfo;
   double _downloadProgress = 0;
   final _apiKeyController = TextEditingController();
+  final _baseUrlController = TextEditingController();
+  final _modelController = TextEditingController();
   bool _notificationsEnabled = true;
   String _appVersion = '';
 
@@ -38,12 +40,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void dispose() {
     _apiKeyController.dispose();
+    _baseUrlController.dispose();
+    _modelController.dispose();
     super.dispose();
   }
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     _apiKeyController.text = prefs.getString('arcano_ai_key') ?? '';
+    _baseUrlController.text = prefs.getString('arcano_ai_base_url') ?? '';
+    _modelController.text = prefs.getString('arcano_ai_model') ?? '';
     _notificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
     if (mounted) setState(() {});
   }
@@ -68,8 +74,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _Card(title: 'Carta del Dia', icon: Icons.notifications_outlined,
           child: _buildNotificationToggle()),
         const SizedBox(height: 12),
-        _Card(title: 'Clave API (NVIDIA)', icon: Icons.key,
-          child: _buildApiKeyField()),
+        _Card(title: 'API de IA', icon: Icons.key,
+          child: _buildApiSection()),
         const SizedBox(height: 12),
         _Card(title: 'Acerca de', icon: Icons.info_outline,
           child: const Text('Herramienta terapeutica basada en PsicoTarot, Linea de Vida, Regresiones y Constelaciones Familiares.')),
@@ -120,19 +126,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildApiKeyField() {
+  Widget _buildApiSection() {
+    return Column(children: [
+      _apiField('URL Base', 'https://api.openai.com/v1', _baseUrlController, 'arcano_ai_base_url'),
+      const SizedBox(height: 12),
+      _apiField('Modelo', 'gpt-4o-mini', _modelController, 'arcano_ai_model'),
+      const SizedBox(height: 12),
+      _apiField('API Key', 'sk-...', _apiKeyController, 'arcano_ai_key'),
+      const SizedBox(height: 8),
+      const Text('Compatible con OpenAI, Anthropic, Google, Ollama y cualquier API compatible con OpenAI.',
+        style: TextStyle(fontSize: 11, color: Colors.grey)),
+    ]);
+  }
+
+  Widget _apiField(String label, String hint, TextEditingController ctrl, String prefKey) {
     return TextField(
-      controller: _apiKeyController,
-      decoration: const InputDecoration(
-        hintText: 'Ingresa tu API key de NVIDIA',
+      controller: ctrl,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
         isDense: true,
       ),
       onSubmitted: (v) async {
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('arcano_ai_key', v);
+        await prefs.setString(prefKey, v);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('API key guardada')),
+            SnackBar(content: Text('$label guardado')),
           );
         }
       },

@@ -377,7 +377,7 @@ class _CardWidgetState extends State<_CardWidget>
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: Image.asset(
-                              'assets/cards/arcano_${widget.arcano.numero}.png',
+                              'assets/cards/arcano_${widget.arcano.numero}.jpg',
                               width: 65,
                               height: 95,
                               fit: BoxFit.cover,

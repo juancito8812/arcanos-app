@@ -36,4 +36,22 @@ class ArcanoMenor {
       default: return '';
     }
   }
+
+  int get imagenNumero {
+    final base = switch (palo.toLowerCase()) {
+      'copas' => 22,
+      'oros' => 36,
+      'espadas' => 50,
+      'bastos' => 64,
+      _ => 22,
+    };
+    final offset = switch (rango) {
+      'as' => 1,
+      '2' => 2, '3' => 3, '4' => 4, '5' => 5,
+      '6' => 6, '7' => 7, '8' => 8, '9' => 9, '10' => 10,
+      'sota' => 12, 'caballo' => 11, 'reina' => 13, 'rey' => 14,
+      _ => 1,
+    };
+    return base + offset - 1;
+  }
 }

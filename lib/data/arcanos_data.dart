@@ -157,7 +157,7 @@ final List<Arcano> allArcanos = [
     colorAsociado: 'Morado',
     nivel: 2,
     afirmacionSanadora: 'Me libero del sacrificio innecesario y confio en que soltar es sanar el sistema familiar.'),
-  Arcano(id: 13, numero: 13, nombre: 'Arcano sin Nombre', nombreRomano: 'XIII',
+  Arcano(id: 13, numero: 13, nombre: 'La Muerte', nombreRomano: 'XIII',
     leyEspiritual: 'Ley de Transformacion. Todo puede cambiar de estado; la muerte no es el final sino una transformacion profunda. Este arcano nos ensena que la unica constante es el cambio y que cada final es el principio de algo nuevo.',
     leccionVida: 'Desapego y comprension de que todo es temporal. No se es dueno de nada ni de nadie. Este arcano nos invita a soltar lo que ya no nos sirve, a dejar morir viejas estructuras para que pueda nacer lo nuevo.',
     miedoAsociado: 'Miedo a la muerte y a los cambios radicales.',

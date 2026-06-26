@@ -5,8 +5,8 @@ import '../data/arcanos_data.dart';
 import '../models/arcano.dart';
 
 class AIService {
-  static const _baseUrl = 'https://integrate.api.nvidia.com/v1/chat/completions';
-  static const _model = 'nvidia/nemotron-3-ultra';
+  static const _defaultBaseUrl = 'https://api.openai.com/v1';
+  static const _defaultModel = 'gpt-4o-mini';
 
   static String? _buildTimeKey;
 
@@ -18,6 +18,16 @@ class AIService {
     if (_buildTimeKey != null && _buildTimeKey!.isNotEmpty) return _buildTimeKey;
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('arcano_ai_key');
+  }
+
+  static Future<String> getBaseUrl() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('arcano_ai_base_url') ?? _defaultBaseUrl;
+  }
+
+  static Future<String> getModel() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('arcano_ai_model') ?? _defaultModel;
   }
 
   static Future<String> interpretDailyCardByNumero(int arcanoNumero, String arcanoNombre) async {
@@ -43,14 +53,18 @@ class AIService {
     userPrompt += ' Interpreta como la energia de este arcano se manifiesta hoy. Da una reflexion practica y una afirmacion.';
 
     try {
+      final baseUrl = await getBaseUrl();
+      final model = await getModel();
+      final url = baseUrl.endsWith('/') ? '${baseUrl}chat/completions' : '$baseUrl/chat/completions';
+
       final response = await http.post(
-        Uri.parse(_baseUrl),
+        Uri.parse(url),
         headers: {
           'Authorization': 'Bearer $apiKey',
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          'model': _model,
+          'model': model,
           'messages': [
             {'role': 'system', 'content': systemPrompt},
             {'role': 'user', 'content': userPrompt},
@@ -95,14 +109,18 @@ class AIService {
     }
 
     try {
+      final baseUrl = await getBaseUrl();
+      final model = await getModel();
+      final url = baseUrl.endsWith('/') ? '${baseUrl}chat/completions' : '$baseUrl/chat/completions';
+
       final response = await http.post(
-        Uri.parse(_baseUrl),
+        Uri.parse(url),
         headers: {
           'Authorization': 'Bearer $apiKey',
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          'model': _model,
+          'model': model,
           'messages': [
             {'role': 'system', 'content': systemPrompt},
             {'role': 'user', 'content': userPrompt},

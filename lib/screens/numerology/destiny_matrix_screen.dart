@@ -119,7 +119,7 @@ class _PositionCard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: Image.asset(
-              'assets/cards/arcano_${pos.numero}.png',
+              'assets/cards/arcano_${pos.numero}.jpg',
               width: 72, height: 103, fit: BoxFit.cover,
               errorBuilder: (c, e, s) => Container(
                 width: 72, height: 103,

@@ -72,63 +72,90 @@ class _Header extends StatelessWidget {
   }
 }
 
-class _PosCard extends StatelessWidget {
+class _PosCard extends StatefulWidget {
   final ArcanoPosicion pos;
   final int index;
   const _PosCard({required this.pos, required this.index});
 
   @override
+  State<_PosCard> createState() => _PosCardState();
+}
+
+class _PosCardState extends State<_PosCard> with SingleTickerProviderStateMixin {
+  late AnimationController _ac;
+  late Animation<double> _scaleAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _ac = AnimationController(duration: const Duration(milliseconds: 150), vsync: this);
+    _scaleAnim = Tween<double>(begin: 1.0, end: 0.96).animate(CurvedAnimation(parent: _ac, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _ac.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final arcano = getArcanoByNumero(pos.arcano.numero);
-    return Card(
-      elevation: 3,
-      shadowColor: AppTheme.purplePrimary.withAlpha(40),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: () => navigateWithScale(context, LifeLineDetailScreen(pos: pos)),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(children: [
-            // Card image
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.asset(
-                'assets/cards/arcano_${pos.arcano.numero}.png',
-                width: 80, height: 115, fit: BoxFit.cover,
-                errorBuilder: (c, e, s) => Container(
-                  width: 80, height: 115,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(colors: [AppTheme.purplePrimary, AppTheme.purpleDark]),
-                    borderRadius: BorderRadius.circular(10),
+    final arcano = getArcanoByNumero(widget.pos.arcano.numero);
+    return AnimatedBuilder(
+      animation: _scaleAnim,
+      builder: (context, child) => Transform.scale(scale: _scaleAnim.value, child: child),
+      child: Card(
+        elevation: 3,
+        shadowColor: AppTheme.purplePrimary.withAlpha(40),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTapDown: (_) => _ac.forward(),
+          onTapUp: (_) { _ac.reverse(); navigateWithScale(context, LifeLineDetailScreen(pos: widget.pos)); },
+          onTapCancel: () => _ac.reverse(),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(children: [
+              // Card image
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.asset(
+                  'assets/cards/arcano_${widget.pos.arcano.numero}.jpg',
+                  width: 80, height: 115, fit: BoxFit.cover,
+                  errorBuilder: (c, e, s) => Container(
+                    width: 80, height: 115,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(colors: [AppTheme.purplePrimary, AppTheme.purpleDark]),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Center(child: Text(widget.pos.arcano.nombreRomano, style: const TextStyle(color: AppTheme.goldAccent, fontSize: 20, fontWeight: FontWeight.bold))),
                   ),
-                  child: Center(child: Text(pos.arcano.nombreRomano, style: const TextStyle(color: AppTheme.goldAccent, fontSize: 20, fontWeight: FontWeight.bold))),
                 ),
               ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              // Position name with number badge
-              Row(children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: AppTheme.goldAccent.withAlpha(30),
-                    borderRadius: BorderRadius.circular(8),
+              const SizedBox(width: 14),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                // Position name with number badge
+                Row(children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: AppTheme.goldAccent.withAlpha(30),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text('#${widget.index}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppTheme.purplePrimary)),
                   ),
-                  child: Text('#$index', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppTheme.purplePrimary)),
-                ),
-                const SizedBox(width: 8),
-                Text(pos.nombre, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.purplePrimary)),
-              ]),
-              const SizedBox(height: 4),
-              Text('Edad ${pos.edadPeriodo}', style: TextStyle(fontSize: 11, color: Colors.grey[500])),
-              if (arcano != null) ...[
-                const SizedBox(height: 6),
-                Text(arcano.leyEspiritual, style: TextStyle(fontSize: 12, color: Colors.grey[600], fontStyle: FontStyle.italic)),
-              ],
-            ])),
-          ]),
+                  const SizedBox(width: 8),
+                  Text(widget.pos.nombre, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.purplePrimary)),
+                ]),
+                const SizedBox(height: 4),
+                Text('Edad ${widget.pos.edadPeriodo}', style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+                if (arcano != null) ...[
+                  const SizedBox(height: 6),
+                  Text(arcano.leyEspiritual, style: TextStyle(fontSize: 12, color: Colors.grey[600], fontStyle: FontStyle.italic)),
+                ],
+              ])),
+            ]),
+          ),
         ),
       ),
     );

@@ -49,17 +49,30 @@
 | 🃏 Hover en cartas | Scale 1.12× + sombra al tocar carta de la rueda |
 | 💬 Frases con color | Cada frase con icono y color distintivo + icono quote |
 | 🔒 Secretos animados | Cada secreto con entrada escalonada, icono por orden (man, woman, favorite, home) |
+### `life_line_result_screen.dart` (NUEVA)
+| Animacion | Descripcion |
+|-----------|-------------|
+| Presion en tarjetas | _PosCard escala a 0.96x al presionar |
+### `regression_screen.dart` (NUEVA)
+| Animacion | Descripcion |
+|-----------|-------------|
+| Entrada escalonada | StaggeredFadeIn en tarjetas de tipo |
+| Transicion suave | AnimatedContainer en seleccion de tipo |
+| Fade en descripcion | AnimatedSwitcher al cambiar de tipo |
+| Presion en pasos | Escala al presionar (GestureDetector + AnimatedBuilder) |
 
 ### Fix crítico aplicado
 - `SingleTickerProviderStateMixin` → `TickerProviderStateMixin` en 3 estados que usan múltiples `AnimationController` (evita crash en runtime)
+- `use_build_context_synchronously` arreglado: agregado `if (!mounted) return;` antes de navegacion
+- Eliminados metodos `_paloAsset`/`_rangoAsset` no usados (reemplazados por nueva nomenclatura)
 
-## Cartas de Marsella 🃏
+## Cartas Rider-Waite-Smith 🃏
 
-Las 22 imágenes de cartas de `assets/cards/` reemplazadas con diseño **Tarot de Marseille**:
+Las imagenes de cartas se unificaron bajo la nomenclatura `arcano_XX.jpg` usando el mazo **Rider-Waite-Smith** (dominio publico, Pamela Colman Smith, 1909).
 
-- **Fondo** vintage cream con bordes envejecidos (vignette)
+- **22 Arcanos Mayores**: `arcano_00.jpg` - `arcano_21.jpg` (completos)
 - **Número** del arcano en esquina superior izquierda e inferior derecha
-- **Número romano** aditivo (IIII, VIIII, XVIIII) en esquina superior derecha
+- **Directorio unico**: todas las cartas en `assets/cards/`, mismo formato `.jpg`
 - **Nombre** del arcano centrado en la parte inferior
 - **Decoración**: doble borde, rombo central, líneas decorativas, viñetas en esquinas (arcos), patrón sutil
 - **Paleta** por arcano: color base distintivo (rojo, azul, dorado, verde, etc.)
@@ -147,8 +160,10 @@ skills/
 2. ✅ ~~Probar flujo de actualización~~ — Release v1.0.1 creada con APK (23.5 MB)
 3. ✅ ~~Eliminar shared_preferences~~ — Resuelto
 4. ✅ ~~Validación de inputs~~ — Agregada
-5. ✅ ~~Cartas de Marsella~~ — Generadas y reemplazadas
+5. ✅ ~~Cartas Rider-Waite-Smith~~ — Generadas y reemplazadas
 6. ✅ ~~Animaciones en tarot_reading y constellation~~ — Completadas
-7. 📝 Pendiente: Agregar animaciones a life_line_result_screen y regression_screen
+7. ✅ ~~Agregar animaciones a life_line_result_screen y regression_screen~~
 
+8. 📝 Descargar las 28 cartas menores faltantes de Wikimedia Commons
+9. 📝 Compilar APK release firmada para distribucion
 `flutter analyze` — 0 issues ✅

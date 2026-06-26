@@ -7,7 +7,6 @@ import 'life_line/life_line_input_screen.dart';
 import 'tarot/tarot_menu_screen.dart';
 import 'regressions/regression_screen.dart';
 import 'constellations/constellation_screen.dart';
-import 'library/arcana_library_screen.dart';
 import 'arrangements/numeric_arrangements_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -18,7 +17,6 @@ class HomeScreen extends StatelessWidget {
     _ModuleData('Tiradas de Tarot', Icons.style, 'Lecturas interactivas', (_) => const TarotMenuScreen()),
     _ModuleData('Regresiones', Icons.self_improvement, 'Guiadas y reflexivas', (_) => const RegressionScreen()),
     _ModuleData('Constelaciones', Icons.groups, 'Orden del sistema familiar', (_) => const ConstellationScreen()),
-    _ModuleData('Biblioteca', Icons.menu_book, 'Los 22 Arcanos Mayores', (_) => const ArcanaLibraryScreen()),
     _ModuleData('Arreglos', Icons.grid_on, 'Análisis numerológicos', (_) => const NumericArrangementsScreen()),
   ];
 
@@ -36,23 +34,21 @@ class HomeScreen extends StatelessWidget {
             StaggeredFadeIn(index: 0, child: const DailyCardBanner()),
             const SizedBox(height: 20),
             // Grid
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.85,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-              ),
-              itemCount: _items.length,
-              itemBuilder: (context, i) => StaggeredFadeIn(
+            Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              alignment: WrapAlignment.center,
+              runAlignment: WrapAlignment.center,
+              children: List.generate(_items.length, (i) => StaggeredFadeIn(
                 index: i + 1,
-                child: _ModuleCard(
-                  data: _items[i],
-                  onTap: () => navigateWithScale(context, _items[i].builder(context)),
+                child: SizedBox(
+                  width: (MediaQuery.of(context).size.width - 48) / 2,
+                  child: _ModuleCard(
+                    data: _items[i],
+                    onTap: () => navigateWithScale(context, _items[i].builder(context)),
+                  ),
                 ),
-              ),
+              )),
             ),
           ]),
         ),

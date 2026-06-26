@@ -113,6 +113,7 @@ class _LifeLineInputScreenState extends State<LifeLineInputScreen> {
     if (mounted && result != null) {
       await _saveName(name);
       await _guardarPerfil(name, result);
+      if (!mounted) return;
       navigateWithSlide(context, LifeLineResultScreen(result: result, nombre: name, fecha: _fecha));
     }
   }

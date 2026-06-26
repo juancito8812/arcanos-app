@@ -762,34 +762,33 @@ class _WheelCardState extends State<_WheelCard>
         builder: (context, _) {
           return Transform.scale(
             scale: _hoverAnim.value,
-            child: Container(
-              width: 55,
-              height: 75,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [AppTheme.purplePrimary, AppTheme.purpleDark],
-                ),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: AppTheme.goldAccent.withValues(alpha: 0.6),
-                  width: 1.5,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.purplePrimary.withValues(alpha: 0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                'assets/cards/arcano_${widget.arcano.numero}.jpg',
+                width: 55, height: 75, fit: BoxFit.cover,
+                errorBuilder: (c, e, s) => Container(
+                  width: 55, height: 75,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [AppTheme.purplePrimary, AppTheme.purpleDark],
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: AppTheme.goldAccent.withValues(alpha: 0.6),
+                      width: 1.5,
+                    ),
                   ),
-                ],
-              ),
-              child: Center(
-                child: Text(
-                  widget.arcano.nombreRomano,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: AppTheme.goldAccent,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
+                  child: Center(
+                    child: Text(
+                      widget.arcano.nombreRomano,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: AppTheme.goldAccent,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
               ),

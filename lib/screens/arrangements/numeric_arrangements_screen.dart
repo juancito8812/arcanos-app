@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../theme.dart';
 import '../../models/life_line.dart';
 import '../../services/life_line_calculator.dart';
+import '../../services/database_service.dart';
 import '../../data/arcanos_data.dart';
 import '../../utils/animated_widgets.dart';
 
@@ -18,10 +19,22 @@ class _NumericArrangementsScreenState extends State<NumericArrangementsScreen> {
   LifeLineResult? _result;
   bool _loading = false;
   String? _nameError;
+  List<Map<String, dynamic>> _recent = [];
 
   static final _nameRegex = RegExp(r"^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s.'-]+$");
 
+  @override
+  void initState() {
+    super.initState();
+    _loadRecent();
+  }
+
   @override void dispose() { _ctrl.dispose(); _nameFocus.dispose(); super.dispose(); }
+
+  Future<void> _loadRecent() async {
+    final perfiles = await DatabaseService.obtenerPerfiles();
+    setState(() => _recent = perfiles.take(10).toList());
+  }
 
   String? _validateName(String value) {
     final v = value.trim();
@@ -37,7 +50,7 @@ class _NumericArrangementsScreenState extends State<NumericArrangementsScreen> {
     if (d != null) setState(() => _fecha = d);
   }
 
-  void _calc() {
+  void _calcAndSave() {
     final error = _validateName(_ctrl.text);
     if (error != null) {
       setState(() => _nameError = error);
@@ -47,7 +60,31 @@ class _NumericArrangementsScreenState extends State<NumericArrangementsScreen> {
     setState(() { _loading = true; _nameError = null; });
     final n = _ctrl.text.trim();
     final r = LifeLineCalculator.calcular(nombreCompleto: n, fechaNacimiento: _fecha);
+    if (r == null) return;
     setState(() { _loading = false; _result = r; });
+    _saveToDb(n, r);
+  }
+
+  void _saveToDb(String nombre, LifeLineResult r) {
+    final nums = r.arcanos.map((a) => a.arcano.numero).toList();
+    DatabaseService.guardarPerfil({
+      'nombre': nombre,
+      'fechaNacimiento': '${_fecha.year}-${_fecha.month.toString().padLeft(2, '0')}-${_fecha.day.toString().padLeft(2, '0')}',
+      'arcano1': nums.isNotEmpty ? nums[0] : null,
+      'arcano2': nums.length > 1 ? nums[1] : null,
+      'arcano3': nums.length > 2 ? nums[2] : null,
+      'arcano4': nums.length > 3 ? nums[3] : null,
+      'arcano5': nums.length > 4 ? nums[4] : null,
+      'fechaCreacion': DateTime.now().toIso8601String(),
+    }).then((_) => _loadRecent());
+  }
+
+  void _loadFromHistory(Map<String, dynamic> perfil) {
+    _ctrl.text = perfil['nombre'] as String;
+    _fecha = DateTime.parse(perfil['fechaNacimiento'] as String);
+    final n = perfil['nombre'] as String;
+    final r = LifeLineCalculator.calcular(nombreCompleto: n, fechaNacimiento: _fecha);
+    setState(() { _result = r; _nameError = null; });
   }
 
   int _nuclear(int num) {
@@ -68,13 +105,38 @@ class _NumericArrangementsScreenState extends State<NumericArrangementsScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Arreglos Numericos')),
       body: SingleChildScrollView(padding: const EdgeInsets.all(16), child: Column(children: [
+        if (_recent.isNotEmpty) ...[
+          SizedBox(
+            height: 60,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: _recent.length,
+              itemBuilder: (ctx, i) {
+                final p = _recent[i];
+                final nombre = p['nombre'] as String;
+                final fecha = p['fechaNacimiento'] as String;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: ActionChip(
+                    avatar: Icon(Icons.history, size: 16, color: AppTheme.goldAccent),
+                    label: Text('$nombre\n$fecha', style: const TextStyle(fontSize: 10)),
+                    onPressed: () => _loadFromHistory(p),
+                    backgroundColor: AppTheme.purplePrimary.withAlpha(12),
+                    side: BorderSide(color: AppTheme.purplePrimary.withAlpha(40)),
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
         Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(children: [
           TextField(
             controller: _ctrl,
             focusNode: _nameFocus,
             textCapitalization: TextCapitalization.words,
             textInputAction: TextInputAction.go,
-            onSubmitted: (_) => _calc(),
+            onSubmitted: (_) => _calcAndSave(),
             decoration: InputDecoration(
               labelText: 'Nombre Completo',
               prefixIcon: const Icon(Icons.person_outline),
@@ -97,7 +159,7 @@ class _NumericArrangementsScreenState extends State<NumericArrangementsScreen> {
             ]),
           )),
           const SizedBox(height: 16),
-          SizedBox(width: double.infinity, height: 45, child: ElevatedButton(onPressed: _loading ? null : _calc,
+          SizedBox(width: double.infinity, height: 45, child: ElevatedButton(onPressed: _loading ? null : _calcAndSave,
             child: _loading ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2) : const Text('Calcular Arreglos'))),
         ]))),
         const SizedBox(height: 16),

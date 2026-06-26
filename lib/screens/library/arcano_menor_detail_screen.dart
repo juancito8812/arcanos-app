@@ -6,35 +6,6 @@ class ArcanoMenorDetailScreen extends StatelessWidget {
   final ArcanoMenor arcano;
   const ArcanoMenorDetailScreen({super.key, required this.arcano});
 
-  String _paloAsset(String palo) {
-    switch (palo.toLowerCase()) {
-      case 'copas': return 'Cups';
-      case 'bastos': return 'Wands';
-      case 'espadas': return 'Swords';
-      case 'oros': return 'Pents';
-      default: return 'Cups';
-    }
-  }
-
-  String _rangoAsset(String rango) {
-    switch (rango) {
-      case 'as': return '01';
-      case '2': return '02';
-      case '3': return '03';
-      case '4': return '04';
-      case '5': return '05';
-      case '6': return '06';
-      case '7': return '07';
-      case '8': return '08';
-      case '9': return '09';
-      case '10': return '10';
-      case 'sota': return '11';
-      case 'caballo': return '12';
-      case 'reina': return '13';
-      case 'rey': return '14';
-      default: return '01';
-    }
-  }
 
   Color _paloColor(String palo) {
     switch (palo.toLowerCase()) {
@@ -68,7 +39,7 @@ class ArcanoMenorDetailScreen extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: Image.asset(
-                  'assets/cards/minor/${_paloAsset(arcano.palo)}${_rangoAsset(arcano.rango)}.jpg',
+                  'assets/cards/arcano_${arcano.imagenNumero}.jpg',
                   width: 200, height: 286, fit: BoxFit.cover,
                   errorBuilder: (c, e, s) => Container(
                     width: 200, height: 286,

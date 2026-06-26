@@ -53,7 +53,7 @@ class _CardImage extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(20),
           child: Image.asset(
-            'assets/cards/arcano_${arcano.numero}.png',
+            'assets/cards/arcano_${arcano.numero}.jpg',
             width: 200, height: 290, fit: BoxFit.cover,
             errorBuilder: (c, e, s) => Container(
               width: 200, height: 290,
