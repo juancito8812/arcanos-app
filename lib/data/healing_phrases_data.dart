@@ -33,10 +33,16 @@ class HealingPhrasesData {
 
   static String personalizar(String frase, String? relacion, String? nombre) {
     var f = frase;
-    if (relacion != null) f = f.replaceAll('[relacion]', relacion);
-    if (nombre != null) f = f.replaceAll('[nombre]', nombre);
-    f = f.replaceAll('[relacion]', 'familiar');
-    f = f.replaceAll('[nombre]', 'hermano/hermana');
+    if (relacion != null) {
+      f = f.replaceAll('[relacion]', relacion);
+    } else {
+      f = f.replaceAll('[relacion]', 'familiar');
+    }
+    if (nombre != null) {
+      f = f.replaceAll('[nombre]', nombre);
+    } else {
+      f = f.replaceAll('[nombre]', 'hermano/hermana');
+    }
     return f;
   }
 }

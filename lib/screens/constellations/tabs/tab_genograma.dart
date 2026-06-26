@@ -47,13 +47,12 @@ class _TabGenogramaState extends State<TabGenograma> {
     });
   }
 
-  Future<void> _guardarTodo() async {
-    setState(() => _loading = true);
+  Future<void> _recargar() async {
     await _cargar();
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Cambios guardados'),
+        content: Text('Arbol recargado'),
         backgroundColor: AppTheme.purplePrimary,
       ),
     );
@@ -174,7 +173,18 @@ class _TabGenogramaState extends State<TabGenograma> {
       ),
     );
 
-    if (result == null || result['nombre'].isEmpty) return;
+    if (result == null) return;
+    if (result['nombre'] == null || (result['nombre'] as String).trim().isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('El nombre es obligatorio'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
 
     final member = FamilyMember(
       id: miembro?.id,
@@ -269,14 +279,20 @@ class _TabGenogramaState extends State<TabGenograma> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return Scaffold(
-      body: _miembros.isEmpty ? _buildEmpty() : _buildTree(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _mostrarDialogo(),
-        backgroundColor: AppTheme.purplePrimary,
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.person_add),
-      ),
+    return Stack(
+      children: [
+        _miembros.isEmpty ? _buildEmpty() : _buildTree(),
+        Positioned(
+          right: 16,
+          bottom: 16,
+          child: FloatingActionButton(
+            onPressed: () => _mostrarDialogo(),
+            backgroundColor: AppTheme.purplePrimary,
+            foregroundColor: Colors.white,
+            child: const Icon(Icons.person_add),
+          ),
+        ),
+      ],
     );
   }
 
@@ -331,9 +347,9 @@ class _TabGenogramaState extends State<TabGenograma> {
           child: SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: _guardarTodo,
-              icon: const Icon(Icons.save, size: 18),
-              label: const Text('Guardar'),
+              onPressed: _recargar,
+              icon: const Icon(Icons.refresh, size: 18),
+              label: const Text('Recargar'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.purplePrimary,
                 foregroundColor: Colors.white,

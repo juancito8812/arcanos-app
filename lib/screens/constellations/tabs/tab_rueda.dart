@@ -141,6 +141,14 @@ class _TabRuedaState extends State<TabRueda> with TickerProviderStateMixin {
     }
     final sesion = ConstellationSession(tema: tema, posiciones: posiciones);
     final resultado = await ConstellationService.interpretarConIA(sesion);
+    if (resultado != null) {
+      final sesionConIa = ConstellationSession(
+        tema: tema,
+        posiciones: posiciones,
+        interpretacionIa: resultado,
+      );
+      await ConstellationService.guardarSesion(sesionConIa);
+    }
     if (mounted) {
       setState(() => _cargandoIa = false);
       showDialog(
