@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
@@ -96,9 +97,15 @@ class UpdateService {
 
   /// Open the APK file with the system installer.
   static Future<void> installApk(String filePath) async {
-    final result = await OpenFilex.open(filePath, type: 'application/vnd.android.package-archive');
-    if (result.type != ResultType.done) {
-      debugPrint('UpdateService.installApk error: ${result.message}');
+    const channel = MethodChannel('com.psicotarot.arcanos_mayores/apk_install');
+    try {
+      await channel.invokeMethod('installApk', {'path': filePath});
+    } catch (e) {
+      debugPrint('UpdateService.installApk channel error: $e, falling back to OpenFilex');
+      final result = await OpenFilex.open(filePath, type: 'application/vnd.android.package-archive');
+      if (result.type != ResultType.done) {
+        debugPrint('UpdateService.installApx fallback error: ${result.message}');
+      }
     }
   }
 
