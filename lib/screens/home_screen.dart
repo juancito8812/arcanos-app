@@ -1,16 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../theme.dart';
 import '../utils/route_transitions.dart';
 import '../utils/animated_widgets.dart';
 import '../widgets/daily_card_banner.dart';
+import '../services/update_service.dart';
 import 'life_line/life_line_input_screen.dart';
 import 'tarot/tarot_menu_screen.dart';
 import 'regressions/regression_screen.dart';
 import 'constellations/constellation_screen.dart';
 import 'arrangements/numeric_arrangements_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  UpdateInfo? _updateInfo;
 
   static final List<_ModuleData> _items = [
     _ModuleData('Mi Línea de Vida', Icons.auto_awesome, 'Descubre tus 5 arcanos', (_) => const LifeLineInputScreen()),
@@ -21,6 +30,64 @@ class HomeScreen extends StatelessWidget {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _checkForUpdates();
+  }
+
+  Future<void> _checkForUpdates() async {
+    await Future.delayed(const Duration(seconds: 2));
+    final info = await UpdateService.checkForUpdate();
+    if (!mounted) return;
+    setState(() {
+      _updateInfo = (info != null && info.isNewer) ? info : null;
+    });
+    if (_updateInfo != null) {
+      final prefs = await SharedPreferences.getInstance();
+      final lastReminder = prefs.getInt('last_update_reminder') ?? 0;
+      final now = DateTime.now().millisecondsSinceEpoch;
+      if (now - lastReminder > 24 * 60 * 60 * 1000) {
+        await prefs.setInt('last_update_reminder', now);
+        if (mounted) _showUpdateDialog(context);
+      }
+    }
+  }
+
+  void _showUpdateDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Nueva versión ${_updateInfo!.version}'),
+        content: SingleChildScrollView(
+          child: Text(_updateInfo!.changelog ?? 'Nuevos cambios disponibles'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Más tarde'),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _downloadAndInstall();
+            },
+            icon: const Icon(Icons.download, size: 18),
+            label: const Text('Descargar e instalar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _downloadAndInstall() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => _DownloadProgressDialog(url: _updateInfo!.downloadUrl),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
@@ -28,12 +95,15 @@ class HomeScreen extends StatelessWidget {
           physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
           child: Column(children: [
-            // Header
             StaggeredFadeIn(index: 0, child: _Header()),
+            if (_updateInfo != null)
+              _UpdateBanner(
+                updateInfo: _updateInfo!,
+                onTap: () => _showUpdateDialog(context),
+              ),
             const SizedBox(height: 20),
             StaggeredFadeIn(index: 0, child: const DailyCardBanner()),
             const SizedBox(height: 20),
-            // Grid
             Wrap(
               spacing: 16,
               runSpacing: 16,
@@ -193,6 +263,106 @@ class _ModuleCardState extends State<_ModuleCard> with SingleTickerProviderState
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _UpdateBanner extends StatelessWidget {
+  final UpdateInfo updateInfo;
+  final VoidCallback onTap;
+  const _UpdateBanner({required this.updateInfo, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Material(
+        color: AppTheme.goldAccent.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(children: [
+              const Icon(Icons.system_update, color: AppTheme.goldAccent, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text('Nueva versión ${updateInfo.version} disponible',
+                  style: const TextStyle(fontWeight: FontWeight.w600)),
+              ),
+              const Icon(Icons.chevron_right, color: Colors.grey),
+            ]),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DownloadProgressDialog extends StatefulWidget {
+  final String url;
+  const _DownloadProgressDialog({required this.url});
+
+  @override
+  State<_DownloadProgressDialog> createState() => _DownloadProgressDialogState();
+}
+
+class _DownloadProgressDialogState extends State<_DownloadProgressDialog> {
+  double _progress = 0;
+  bool _downloaded = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _empezarDescarga();
+  }
+
+  Future<void> _empezarDescarga() async {
+    final file = await UpdateService.downloadApk(
+      widget.url,
+      onProgress: (p) {
+        if (mounted) setState(() => _progress = p);
+      },
+    );
+    if (!mounted) return;
+    if (file != null) {
+      setState(() => _downloaded = true);
+      await UpdateService.installApk(file.path);
+      if (mounted) Navigator.of(context).pop();
+    } else {
+      setState(() => _error = 'Error al descargar la actualización');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Actualizando...'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (_error != null) ...[
+            Icon(Icons.error, color: Colors.red[400], size: 48),
+            const SizedBox(height: 12),
+            Text(_error!),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cerrar'),
+            ),
+          ] else if (_downloaded) ...[
+            const Icon(Icons.check_circle, color: Colors.green, size: 48),
+            const SizedBox(height: 12),
+            const Text('Descarga completada, instalando...'),
+          ] else ...[
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text('${(_progress * 100).toStringAsFixed(0)}%'),
+          ],
+        ],
       ),
     );
   }

@@ -1,3 +1,22 @@
+# Auto-Commit + In-App Update — Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development
+
+**Goal:** Auto-commit after edits + in-app update flow with GitHub release
+
+**Architecture:** UpdateService + Settings UI already exist; needs HomeScreen auto-check badge + 24h reminder suppression + version bump + release
+
+**Tech Stack:** Flutter, dio, open_filex, package_info_plus, path_provider, SharedPreferences
+
+## Global Constraints
+- Sin comentarios en código
+- Nombres descriptivos en español
+- Version bump: 2.1.0+4 → 2.2.0+5
+- Tag: v2.2.0
+- APK name: app-release.apk
+
+---
+
 ### Task 1: Auto-check update en HomeScreen
 
 **Files:**
@@ -126,4 +145,43 @@ import '../services/update_service.dart';
 
 ---
 
+### Task 2: Bump version + Build APK
 
+**Files:**
+- Modify: `pubspec.yaml` — version: 2.2.0+5
+
+- [ ] **Step 1: Edit pubspec.yaml version**
+- [ ] **Step 2: Run flutter analyze**
+- [ ] **Step 3: Commit** `feat: bump version 2.2.0+5`
+
+```bash
+git add -A
+git commit -m "feat: bump version 2.2.0+5"
+```
+
+- [ ] **Step 4: Build release APK**
+
+```bash
+& "C:\Users\Juan Sanchez\flutter_sdk\flutter\bin\flutter.bat" build apk --release
+```
+
+---
+
+### Task 3: Tag + GitHub Release
+
+- [ ] **Step 1: Tag**
+
+```bash
+git tag v2.2.0
+git push origin v2.2.0
+git push origin master
+```
+
+- [ ] **Step 2: Create release**
+
+```bash
+gh release create v2.2.0 `
+  --title "v2.2.0 - Actualización in-app" `
+  --notes "Nueva funcionalidad: detección automática de actualizaciones desde la misma app. Descarga e instala nuevas versiones directamente." `
+  "build/app/outputs/flutter-apk/app-release.apk"
+```
