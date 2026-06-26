@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:arcanos_mayores/services/notification_service.dart';
 import '../../theme.dart';
 import '../../services/database_service.dart';
@@ -47,7 +48,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    _apiKeyController.text = prefs.getString('arcano_ai_key') ?? '';
+    final storage = FlutterSecureStorage();
+    _apiKeyController.text = (await storage.read(key: 'arcano_ai_key')) ?? '';
     _baseUrlController.text = prefs.getString('arcano_ai_base_url') ?? '';
     _modelController.text = prefs.getString('arcano_ai_model') ?? '';
     _notificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
@@ -163,11 +165,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
       const SizedBox(height: 12),
       _apiField('Modelo', 'gpt-4o-mini', _modelController, 'arcano_ai_model'),
       const SizedBox(height: 12),
-      _apiField('API Key', 'sk-...', _apiKeyController, 'arcano_ai_key'),
+      _apiKeyField(),
       const SizedBox(height: 8),
       const Text('Compatible con OpenAI, Anthropic, Google, Ollama y cualquier API compatible con OpenAI.',
         style: TextStyle(fontSize: 11, color: Colors.grey)),
     ]);
+  }
+
+  Widget _apiKeyField() {
+    return TextField(
+      controller: _apiKeyController,
+      decoration: InputDecoration(
+        labelText: 'API Key',
+        hintText: 'sk-...',
+        isDense: true,
+      ),
+      onSubmitted: (v) async {
+        final storage = FlutterSecureStorage();
+        await storage.write(key: 'arcano_ai_key', value: v);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('API Key guardada')),
+          );
+        }
+      },
+    );
   }
 
   Widget _apiField(String label, String hint, TextEditingController ctrl, String prefKey) {

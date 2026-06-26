@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/arcanos_data.dart';
@@ -7,6 +8,7 @@ import '../models/arcano.dart';
 class AIService {
   static const _defaultBaseUrl = 'https://api.openai.com/v1';
   static const _defaultModel = 'gpt-4o-mini';
+  static const _secureStorage = FlutterSecureStorage();
 
   static String? _buildTimeKey;
 
@@ -16,8 +18,15 @@ class AIService {
 
   static Future<String?> getApiKey() async {
     if (_buildTimeKey != null && _buildTimeKey!.isNotEmpty) return _buildTimeKey;
+    final key = await _secureStorage.read(key: 'arcano_ai_key');
+    if (key != null && key.isNotEmpty) return key;
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('arcano_ai_key');
+    final oldKey = prefs.getString('arcano_ai_key');
+    if (oldKey != null && oldKey.isNotEmpty) {
+      await _secureStorage.write(key: 'arcano_ai_key', value: oldKey);
+      await prefs.remove('arcano_ai_key');
+    }
+    return oldKey;
   }
 
   static Future<String> getBaseUrl() async {
