@@ -1,0 +1,97 @@
+================================================================
+REVISIÓN DE CÓDIGO - CONSTELACIONES FAMILIARES
+================================================================
+
+FECHA: 26/06/2026
+
+================================================================
+1. ARCHIVOS PRINCIPALES
+================================================================
+
+A) lib/screens/constellations/constellation_screen.dart (1052 líneas)
+
+Estructura general:
+- Screen: ConstellationScreen (StatefulWidget con TickerProviderStateMixin)
+- 5 tabs: "Que es?", "3 Leyes", "Rueda", "Frases", "Secretos"
+- Widgets internos:
+  - _TabChip / _TabChipState → tabs animados con escala al presionar
+  - _GradientCard → contenedor reutilizable con gradiente purple
+  - _Info → tab 0: descripción + 6 bases teóricas (Virginia Satir, Fenomenología, PNL, Gestalt, Psicodrama, Hipnosis Ericksoniana)
+  - _Leyes → tab 1: 3 leyes (Pertenencia, Orden y Jerarquía, Equilibrio)
+  - _LeyCard → card individual para cada ley con icono de color
+  - _Rueda / _RuedaState → tab 2: rueda de 7 arcanos con animación easeOutBack
+  - _WheelLinesPainter → CustomPainter para líneas radiales + círculo
+  - _WheelCard / _WheelCardState → carta individual en la rueda con hover scale 1.12x
+  - _Frases → tab 3: 8 frases sanadoras hardcodeadas
+  - _Secretos → tab 4: 4 secretos familiares hardcodeados
+
+
+B) lib/models/family_member.dart (5 líneas)
+
+class FamilyMember {
+  final String id;
+  final String nombre;
+  final String relacion;
+  final int? arcanoNumero;
+  double posX;
+  double posY;
+
+  FamilyMember({
+    required this.id,
+    required this.nombre,
+    required this.relacion,
+    this.arcanoNumero,
+    this.posX = 0,
+    this.posY = 0,
+  });
+}
+
+
+================================================================
+2. ARCHIVOS RELACIONADOS
+================================================================
+
+C) lib/data/spreads_data.dart
+  No tiene tiradas específicas para constelaciones.
+
+D) lib/services/ai_service.dart
+  No hay integración de IA con constelaciones.
+
+E) lib/services/database_service.dart
+  No hay tabla específica para constelaciones. DB tiene: perfiles, tiradas, regresiones, daily_cards.
+
+
+================================================================
+3. CONTEXTO ADICIONAL
+================================================================
+
+Funcionalidades ya implementadas:
+- 5 tabs informativas con contenido estático
+- Rueda de 7 arcanos aleatorios con animación
+- Líneas radiales con CustomPainter
+- Diálogo de detalle al tocar carta
+- 3 leyes de constelaciones familiares
+- 8 frases sanadoras
+- 4 secretos familiares (orden de nacimiento)
+- Modelo FamilyMember creado
+
+Problemas identificados:
+1. FamilyMember está definido pero NUNCA se instancia (código muerto)
+2. No hay interacción real: usuario no puede posicionar miembros
+3. 7 arcanos en rueda son aleatorios (shuffle + take 7), sin relación con perfil
+4. Sin integración con IA para interpretar la rueda
+5. Sin persistencia de datos de constelaciones
+6. Frases y secretos son contenido hardcodeado
+
+
+================================================================
+4. SECCIÓN ESPECÍFICA A REVISAR
+================================================================
+
+Rueda (líneas 482-686):
+- Unico componente interactivo
+- Solo selecciona 7 cartas al azar
+- No considera perfil, fecha ni contexto del usuario
+- Animación visualmente atractiva pero funcionalidad superficial
+
+================================================================
