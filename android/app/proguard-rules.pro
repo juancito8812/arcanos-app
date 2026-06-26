@@ -25,3 +25,7 @@
 
 # Keep sqflite
 -keep class sqflite.** { *; }
+
+# Keep Play Core (referenced by Flutter engine for deferred components)
+-dontwarn com.google.android.play.core.**
+-keep class com.google.android.play.core.** { *; }
