@@ -12,8 +12,8 @@ class PsicoTarotApp extends StatelessWidget {
     return MaterialApp(
       title: 'PsicoTarot - Arcanos Mayores',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
+      theme: AppTheme.themeFor(themeProvider.palette, ThemeMode.light),
+      darkTheme: AppTheme.themeFor(themeProvider.palette, ThemeMode.dark),
       themeMode: themeProvider.mode,
       home: const SplashScreen(),
     );
