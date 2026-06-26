@@ -4,6 +4,7 @@ import '../../../theme.dart';
 import '../../../models/arcano.dart';
 import '../../../models/constellation_session.dart';
 import '../../../models/family_member.dart';
+import '../../../services/database_service.dart';
 import '../../../services/constellation_service.dart';
 import '../../../utils/animated_widgets.dart';
 
@@ -74,7 +75,7 @@ class _TabRuedaState extends State<TabRueda> with TickerProviderStateMixin {
   }
 
   Future<void> _cargarMiembros() async {
-    final miembros = await ConstellationService.cargarMiembros();
+    final miembros = await DatabaseService.obtenerMiembrosConstelacion();
     if (mounted) setState(() => _miembros = miembros);
   }
 
@@ -117,7 +118,7 @@ class _TabRuedaState extends State<TabRueda> with TickerProviderStateMixin {
       ));
     }
     final sesion = ConstellationSession(tema: tema, posiciones: posiciones);
-    await ConstellationService.guardarSesion(sesion);
+    await DatabaseService.guardarSesionConstelacion(sesion);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Sesion guardada')),
@@ -147,7 +148,7 @@ class _TabRuedaState extends State<TabRueda> with TickerProviderStateMixin {
         posiciones: posiciones,
         interpretacionIa: resultado,
       );
-      await ConstellationService.guardarSesion(sesionConIa);
+      await DatabaseService.guardarSesionConstelacion(sesionConIa);
     }
     if (mounted) {
       setState(() => _cargandoIa = false);

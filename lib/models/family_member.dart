@@ -53,16 +53,4 @@ class FamilyMember {
     posY: (map['pos_y'] as num?)?.toDouble() ?? 0,
   );
 
-  FamilyMember copyWith({int? id, String? nombre, String? relacion, int? generacion, int? arcanoNumero, List<String>? eventos, String? fechaNacimiento, String? fechaEvento, double? posX, double? posY}) => FamilyMember(
-    id: id ?? this.id,
-    nombre: nombre ?? this.nombre,
-    relacion: relacion ?? this.relacion,
-    generacion: generacion ?? this.generacion,
-    arcanoNumero: arcanoNumero ?? this.arcanoNumero,
-    eventos: eventos ?? this.eventos,
-    fechaNacimiento: fechaNacimiento ?? this.fechaNacimiento,
-    fechaEvento: fechaEvento ?? this.fechaEvento,
-    posX: posX ?? this.posX,
-    posY: posY ?? this.posY,
-  );
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../theme.dart';
 import '../../../models/family_member.dart';
-import '../../../services/constellation_service.dart';
+import '../../../services/database_service.dart';
 import '../../../utils/animated_widgets.dart';
 
 class TabGenograma extends StatefulWidget {
@@ -39,7 +39,7 @@ class _TabGenogramaState extends State<TabGenograma> {
 
   Future<void> _cargar() async {
     setState(() => _loading = true);
-    final miembros = await ConstellationService.cargarMiembros();
+    final miembros = await DatabaseService.obtenerMiembrosConstelacion();
     if (!mounted) return;
     setState(() {
       _miembros = miembros;
@@ -196,7 +196,11 @@ class _TabGenogramaState extends State<TabGenograma> {
       fechaEvento: result['fechaEvento'],
     );
 
-    await ConstellationService.guardarMiembro(member);
+    if (member.id != null) {
+      await DatabaseService.actualizarMiembroConstelacion(member);
+    } else {
+      await DatabaseService.guardarMiembroConstelacion(member);
+    }
     await _cargar();
   }
 
@@ -224,53 +228,9 @@ class _TabGenogramaState extends State<TabGenograma> {
     );
 
     if (confirm == true && m.id != null) {
-      await ConstellationService.eliminarMiembro(m.id!);
+      await DatabaseService.eliminarMiembroConstelacion(m.id!);
       await _cargar();
     }
-  }
-
-  void _mostrarOpciones(FamilyMember m) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 12),
-              ListTile(
-                leading: const Icon(Icons.edit, color: AppTheme.purplePrimary),
-                title: const Text('Editar'),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _mostrarDialogo(miembro: m);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.delete, color: Colors.red),
-                title: const Text('Eliminar', style: TextStyle(color: Colors.red)),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _confirmarEliminar(m);
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   @override
@@ -426,7 +386,8 @@ class _TabGenogramaState extends State<TabGenograma> {
               child: _MiembroCard(
                 miembro: m,
                 color: _generacionColores[g],
-                onLongPress: () => _mostrarOpciones(m),
+                onEdit: () => _mostrarDialogo(miembro: m),
+                onDelete: () => _confirmarEliminar(m),
               ),
             );
           }),
@@ -439,12 +400,14 @@ class _TabGenogramaState extends State<TabGenograma> {
 class _MiembroCard extends StatelessWidget {
   final FamilyMember miembro;
   final Color color;
-  final VoidCallback onLongPress;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   const _MiembroCard({
     required this.miembro,
     required this.color,
-    required this.onLongPress,
+    required this.onEdit,
+    required this.onDelete,
   });
 
   @override
@@ -456,57 +419,54 @@ class _MiembroCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(color: color.withAlpha(40)),
       ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onLongPress: onLongPress,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 4,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(2),
-                ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 4,
+              height: 48,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(2),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.person, size: 16, color: color),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            miembro.nombre,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                            ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.person, size: 16, color: color),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          miembro.nombre,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      miembro.relacion,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    miembro.relacion,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
                     ),
-                    if (miembro.eventos.isNotEmpty) ...[
-                      const SizedBox(height: 6),
-                      Wrap(
-                        spacing: 4,
-                        runSpacing: 4,
-                        children: miembro.eventos.map((e) => Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  ),
+                  if (miembro.eventos.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 4,
+                      runSpacing: 4,
+                      children: miembro.eventos.map((e) => Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
                             color: color.withAlpha(20),
                             borderRadius: BorderRadius.circular(8),
@@ -554,11 +514,23 @@ class _MiembroCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(Icons.more_vert, size: 18, color: Colors.grey[400]),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  GestureDetector(
+                    onTap: onEdit,
+                    child: Icon(Icons.edit, size: 16, color: color.withAlpha(180)),
+                  ),
+                  const SizedBox(height: 4),
+                  GestureDetector(
+                    onTap: onDelete,
+                    child: Icon(Icons.delete, size: 16, color: Colors.red[300]),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 }

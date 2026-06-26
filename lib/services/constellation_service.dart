@@ -5,7 +5,6 @@ import '../data/arcanos_data.dart';
 import '../models/arcano.dart';
 import '../models/constellation_session.dart';
 import '../models/family_member.dart';
-import '../services/database_service.dart';
 import '../services/ai_service.dart';
 
 class ConstellationService {
@@ -103,16 +102,4 @@ class ConstellationService {
     } catch (_) {}
     return null;
   }
-
-  static Future<List<FamilyMember>> cargarMiembros() => DatabaseService.obtenerMiembrosConstelacion();
-  static Future<void> guardarMiembro(FamilyMember m) async {
-    if (m.id != null) {
-      await DatabaseService.actualizarMiembroConstelacion(m);
-    } else {
-      await DatabaseService.guardarMiembroConstelacion(m);
-    }
-  }
-  static Future<void> eliminarMiembro(int id) => DatabaseService.eliminarMiembroConstelacion(id);
-  static Future<List<ConstellationSession>> cargarSesiones() => DatabaseService.obtenerSesionesConstelacion();
-  static Future<void> guardarSesion(ConstellationSession s) => DatabaseService.guardarSesionConstelacion(s);
 }

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../theme.dart';
 import '../../../models/arcano.dart';
-import '../../../services/constellation_service.dart';
-import '../../../services/life_line_calculator.dart';
 import '../../../services/database_service.dart';
+import '../../../services/life_line_calculator.dart';
+import '../../../services/constellation_service.dart';
 import '../../../utils/animated_widgets.dart';
 
 class TabPatrones extends StatefulWidget {
@@ -26,7 +26,7 @@ class _TabPatronesState extends State<TabPatrones> {
 
   Future<void> _cargarDatos() async {
     try {
-      final miembros = await ConstellationService.cargarMiembros();
+      final miembros = await DatabaseService.obtenerMiembrosConstelacion();
       final perfiles = await DatabaseService.obtenerPerfiles();
 
       _hasMembers = miembros.isNotEmpty;
@@ -98,46 +98,24 @@ class _TabPatronesState extends State<TabPatrones> {
     }
 
     if (!_hasMembers) {
-      return _buildEmptyState(
-        icon: Icons.people_outline,
-        message: 'Agrega miembros en el genograma para analizar patrones',
-      );
+      return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Icon(Icons.people_outline, size: 64, color: AppTheme.goldAccent),
+        const SizedBox(height: 16),
+        Text('Agrega miembros en el genograma para analizar patrones', textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 15, color: Colors.grey)),
+      ]));
     }
 
     if (_patrones == null || _patrones!.isEmpty) {
-      return _buildEmptyState(
-        icon: Icons.check_circle_outline,
-        message:
-            'No se detectaron patrones repetitivos en tu sistema familiar',
-      );
+      return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+        Icon(Icons.check_circle_outline, size: 64, color: AppTheme.goldAccent),
+        const SizedBox(height: 16),
+        Text('No se detectaron patrones repetitivos en tu sistema familiar', textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 15, color: Colors.grey)),
+      ]));
     }
 
     return _buildContent();
-  }
-
-  Widget _buildEmptyState({
-    required IconData icon,
-    required String message,
-  }) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 64, color: AppTheme.goldAccent),
-            const SizedBox(height: 16),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Colors.grey,
-                  ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   Widget _buildContent() {
