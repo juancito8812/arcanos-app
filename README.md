@@ -29,6 +29,7 @@ App Flutter de PsicoTarot basada en los 78 Arcanos del Tarot de Marseille unific
 - Flutter SDK (3.27+)
 - Dart SDK
 - JDK 17+ (para build Android)
+- Android SDK (minSdk 23, compileSdk 36)
 
 ## Instalación
 
@@ -78,7 +79,7 @@ Basado en el manual "Formación de PsicoTarot Personal, Transpersonal y Sistémi
 
 ## Estado
 
-✅ `flutter analyze` — Sin errores (1 info preexistente: `use_build_context_synchronously`)
+✅ `flutter analyze` — Sin issues
 
 ## Repositorio
 

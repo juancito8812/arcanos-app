@@ -1,7 +1,8 @@
 # PsicoTarot App — Contexto para Agentes IA
 
 ## Stack
-- Flutter 3.27+ / Dart 3.7+
+- Flutter 3.27+ / Dart 3.7+ (verificado con Flutter 3.47.7 stable)
+- Android: Gradle 8.14.3, AGP 8.11.1, Kotlin 2.2.20, Java 17, minSdk 23, compileSdk/targetSdk 36, NDK 27.0.12077973
 - SQLite (sqflite) para persistencia
 - flutter_secure_storage para API key
 - SharedPreferences para historial y tema
@@ -113,4 +114,6 @@ App de PsicoTarot con línea de vida, matriz de destino, constelaciones familiar
 
 ### Conocido
 - El CI (`build-apk.yml`) solo compila APK `--debug` y sube artifact: **no firma ni crea releases** (las releases se crean a mano con `gh release create`)
+- El CI usa `channel: stable` sin pin: cada subida de Flutter stable puede exigir modernizar Gradle/AGP/minSdk
+- `flutter build` avisa que el plugin `jni` pide NDK 28.2.13676358 (hoy 27.0.12077973; el build pasa igual)
 - El SHA `b470678` que citaba el resumen anterior NO existe en el repositorio

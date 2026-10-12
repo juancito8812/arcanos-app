@@ -7,7 +7,12 @@
 - Última release: `v2.3.0` (GitHub Releases, APK firmado 48.7 MB)
 - Tags: `v1.0.1`, `v1.1.0-test`, `v1.1.1-test`, `v2.0.0`, `v2.1.0`, `v2.2.0`, `v2.2.1`, `v2.2.2`, `v2.3.0`
 - Build: `flutter build apk --release` → `build/app/outputs/flutter-apk/app-release.apk`
-- Análisis: `flutter analyze` — estricto por defecto (infos y warnings son fatales); debe quedar en cero issues
+- Análisis: `flutter analyze` — cero issues (verificado con Flutter 3.47.7 stable)
+
+## Toolchain Android (Flutter stable actual)
+- Flutter 3.47.7 / Dart 3.13.5 (CI usa `channel: stable` sin pin)
+- Gradle 8.14.3 · AGP 8.11.1 · Kotlin 2.2.20 · Java 17
+- minSdk 23 · compileSdk 36 · targetSdk 36 · NDK 27.0.12077973
 
 ## Últimos Cambios (commiteados)
 - `ff599ae` — bump version 2.3.0
@@ -27,13 +32,15 @@
 `perfiles`, `tiradas`, `regresiones`, `daily_cards`, `constellation_members`, `constellation_sessions`
 
 ## Issues Conocidos
-- CI (`build-apk.yml`) en rojo: falla en el paso `flutter analyze`
+- `flutter build` avisa que el plugin `jni` (dependencia transitiva de `path_provider_android`) pide NDK 28.2.13676358; hoy se usa 27.0.12077973 y el build pasa igual (aviso no bloqueante)
 - El workflow solo compila APK `--debug` y sube artifact: **no firma ni crea releases** (las releases se crean a mano con `gh release create`)
+- El CI no pinea la versión de Flutter (`channel: stable`); cada subida de stable puede exigir modernizar Gradle/AGP/minSdk otra vez
 - `lib/screens/constellations/tabs/tab_interpretacion.dart` y `tab_sesiones.dart` NO existen (los reemplazó `tab_patrones.dart`)
+- `.flutter-plugins-dependencies` está commiteado pese a ser generado (contiene rutas absolutas locales)
 - Sin tests unitarios, sin soporte iOS, sin i18n
 
 ## Para Próxima Sesión
-1. Arreglar el CI (`flutter analyze`) y decidir si pinear la versión de Flutter en el workflow
+1. Pinear la versión de Flutter en el workflow (o subir NDK a 28.2.13676358) para evitar sorpresas con stable
 2. Internacionalización (i18n)
 3. Tests unitarios
 4. Hacer interactiva la rueda de constelaciones (arrastrar miembros)

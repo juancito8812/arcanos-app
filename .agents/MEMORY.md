@@ -15,6 +15,7 @@
 - `android/` — Configuración Android (keystore, network security)
 - `test/` — Tests unitarios
 - `.github/workflows/build-apk.yml` — CI: `flutter pub get` → `flutter analyze` → `flutter build apk --debug` → sube artifact
+- Android: Gradle 8.14.3, AGP 8.11.1, Kotlin 2.2.20, Java 17, minSdk 23, compileSdk/targetSdk 36
 
 ## Características Principales
 
@@ -44,7 +45,7 @@
 
 ## Próximos Pasos
 
-- [ ] Arreglar el CI (`flutter analyze` falla el build)
+- [ ] Pinear la versión de Flutter en el CI (hoy `channel: stable` sin pin)
 - [ ] Firma APK para Google Play
 - [ ] Agregar más tipos de tiradas
 - [ ] Internacionalización (i18n)
