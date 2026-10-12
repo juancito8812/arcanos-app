@@ -1,6 +1,6 @@
 ---
 name: auto-sync
-description: Después de completar cambios en el proyecto arcanos-app, automatiza git commit, push y actualización de AI_HANDOFF.md para mantener el repo sincronizado.
+description: Después de completar cambios en el proyecto arcanos-app, automatiza git commit, push y actualización de docs/handoff-actual.md para mantener el repo sincronizado.
 version: "1.0.0"
 metadata:
   author: juancito8812
@@ -12,7 +12,7 @@ metadata:
 ## Checklist
 
 - [ ] `flutter analyze` pasa sin errores
-- [ ] AI_HANDOFF.md actualizado con los cambios realizados
+- [ ] docs/handoff-actual.md actualizado con los cambios realizados
 - [ ] En la rama correcta (master a menos que se especifique otra)
 - [ ] Sin cambios experimentales sin commitear
 - [ ] Mensaje de commit sigue el formato convencional
@@ -27,7 +27,7 @@ Ejecutar desde la raíz del proyecto (`arcanos-app`):
 flutter analyze
 ```
 
-### 2. Actualizar AI_HANDOFF.md
+### 2. Actualizar docs/handoff-actual.md
 
 Agregar o actualizar la sección "Últimos cambios" con:
 - Qué cambió (feature, bug fix, refactor)
@@ -42,7 +42,7 @@ git commit -m "tipo: descripción concisa del cambio"
 git push
 ```
 
-## Template para AI_HANDOFF.md
+## Template para docs/handoff-actual.md
 
 ```
 ## feature: [nombre]
@@ -63,6 +63,6 @@ git push
 ## Criterios de salida
 
 - [ ] Código commiteado con mensaje descriptivo
-- [ ] AI_HANDOFF.md refleja el estado actual
+- [ ] docs/handoff-actual.md refleja el estado actual
 - [ ] `flutter analyze` — 0 issues
 - [ ] Push confirmado exitosamente

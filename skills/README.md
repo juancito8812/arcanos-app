@@ -17,7 +17,7 @@ Las siguientes skills solo requieren que el agente lea el archivo `SKILL.md`:
 
 | Skill | Descripción |
 |-------|-------------|
-| [auto-sync](./auto-sync/) | Auto-commit y push después de cambios + actualización de AI_HANDOFF.md |
+| [auto-sync](./auto-sync/) | Auto-commit y push después de cambios + actualización de docs/handoff-actual.md |
 | [changelog-generator](./changelog-generator/) | Genera changelogs descriptivos a partir del historial de commits |
 | [error-handling-patterns](./error-handling-patterns/) | Patrones de manejo de errores en múltiples lenguajes |
 | [frontend-design](./frontend-design/) | Guía de diseño visual distintivo para interfaces |
