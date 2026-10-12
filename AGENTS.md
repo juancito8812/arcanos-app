@@ -12,7 +12,7 @@
 ## Estructura clave
 
 ### Modelos
-- `lib/models/arcano.dart` — 17 campos: id, numero, nombre, nombreRomano, leyEspiritual, leccionVida, miedoAsociado, descripcionGeneral, arquetipo, elemento, polaridad, valorNuclear, desafio, significadoPosicion, perspectivaTransgeneracional, colorAsociado, nivel, afirmacionSanadora
+- `lib/models/arcano.dart` — 18 campos: id, numero, nombre, nombreRomano, leyEspiritual, leccionVida, miedoAsociado, descripcionGeneral, arquetipo, elemento, polaridad, valorNuclear, desafio, significadoPosicion, perspectivaTransgeneracional, colorAsociado, nivel, afirmacionSanadora
 - `lib/models/arcano_menor.dart` — 7 campos: id, nombre, palo, rango, numero, elemento, significado. rangos: as, 2-10, sota, caballo, reina, rey
 - `lib/models/life_line.dart` — LifeLineResult (5 ArcanoPosicion)
 - `lib/models/destiny_matrix.dart` — DestinyMatrix (8 DestinyPosition)
@@ -45,13 +45,11 @@
 - `life_line/life_line_result_screen.dart` — Muestra 5 arcanos con imágenes
 - `numerology/destiny_matrix_screen.dart` — 8 posiciones con imágenes
 - `settings/settings_screen.dart` — Versión, selector de paleta, API key (URL + modelo + key), actualización
-- `constellations/constellation_screen.dart` — 6 tabs: Genograma, Rueda, Frases, Patrones, Interpretación IA, Sesiones
+- `constellations/constellation_screen.dart` — 6 tabs: Qué es?, 3 Leyes, Genograma, Rueda, Frases, Patrones
 - `constellations/tabs/tab_genograma.dart` — Árbol genealógico con 3 generaciones, CRUD de miembros
-- `constellations/tabs/tab_rueda.dart` — Rueda de 7 arcanos animada con numerología
+- `constellations/tabs/tab_rueda.dart` — Rueda de 7 arcanos animada con numerología y persistencia de sesión
 - `constellations/tabs/tab_frases.dart` — 72 frases sanadoras en 3 niveles
 - `constellations/tabs/tab_patrones.dart` — Patrones transgeneracionales detectados por IA
-- `constellations/tabs/tab_interpretacion.dart` — Interpretación IA de constelación
-- `constellations/tabs/tab_sesiones.dart` — Historial de sesiones de constelación
 
 ### Assets
 - `assets/cards/arcano_0.jpg` a `arcano_77.jpg` — 78 cartas unificadas del Tarot de Marseille (mixvlad/TarotCards)
@@ -62,7 +60,7 @@
 - **Imágenes:** 78 cartas Marseille unificadas en JPG
 - **Git:** Commits en español, rama activa `master`, auto-commit tras cada edición
 - **APK:** `flutter build apk --release` → `build/app/outputs/flutter-apk/app-release.apk`
-- **Análisis:** `flutter analyze` — Sin errores permitidos, 1 info preexistente (`use_build_context_synchronously`)
+- **Análisis:** `flutter analyze` — por defecto trata **infos y warnings como fatales** (`fatal-infos`/`fatal-warnings` = true). Debe quedar en cero issues, porque el CI (`build-apk.yml`) corre `flutter analyze` y falla con cualquiera.
 - **Auto-commit:** Tras cada edición de archivo: `git add -A && git commit -m "checkpoint: <descripción>"`
 
 ## Flujo Línea de Vida → Matriz
@@ -87,27 +85,32 @@ gh release create vX.X.X "build/app/outputs/flutter-apk/app-release.apk#app-rele
 Ver `docs/handoff-actual.md` para estado completo.
 
 ---
-## Anchored Summary (2026-06-26)
+## Anchored Summary (2026-10-12)
 
 ### Goal
 App de PsicoTarot con línea de vida, matriz de destino, constelaciones familiares (v2), carta diaria, biblioteca de 78 arcanos, IA configurable.
 
+### Estado
+- Versión: `2.3.0+8` (pubspec.yaml)
+- Rama: `master`, sincronizada con `origin/master`
+- HEAD: `ff599ae` — checkpoint: bump version 2.3.0
+- Última release: `v2.3.0` (GitHub Releases, APK firmado 48.7 MB)
+- Tags: `v1.0.1`, `v1.1.0-test`, `v1.1.1-test`, `v2.0.0`, `v2.1.0`, `v2.2.0`, `v2.2.1`, `v2.2.2`, `v2.3.0`
+
 ### Progress
-- v2.2.2 released con fix de APK install (MethodChannel → Kotlin, reemplazó OpenFilex que sobreescribía flags)
-- Código limpio tras code review + ponytail: sin errores, sin dead code (`FamilyMember` ahora activo)
-- Constellation v2 completo: 6 tabs (genograma, rueda, frases, patrones, interpretación IA, sesiones)
+- Constellation v2 completo: 6 tabs (Qué es?, 3 Leyes, Genograma, Rueda, Frases, Patrones)
 - Healing phrases: 72 frases en 3 niveles
-- DatabaseService extendido: `constellation_members` + `constellation_sessions`
+- DatabaseService: 6 tablas (perfiles, tiradas, regresiones, daily_cards, constellation_members, constellation_sessions)
 - ConstellationService: asignación de arcanos por numerología, detección de patrones transgeneracionales, interpretación IA
-- Ponytail cuts aplicados: eliminados copyWith, DB wrappers en service, bottom sheet → inline icons, custom expand → ExpansionTile, _buildEmptyState deduplicado
-- `flutter analyze` — No issues found
+- `FamilyMember` activo (toMap/fromMap; usado por ConstellationService y TabGenograma)
 
 ### Commits clave (SHA más reciente primero)
-- `ponytail cuts` — remove copyWith, DB wrappers, bottom sheet, custom expand, deduplicate emptyState
+- `ff599ae` — bump version 2.3.0
 - `07692ef` — fixes: personalizar() bug, nested Scaffold, AI persistence, Guardar button no-op, input validation
-- `dd9c474` — constellation v2: Genograma, Frases, Rueda refactor, Patrones, Interpretación IA, Sesiones
-- `307b3d6` — v2.2.2 released + APK install fix con MethodChannel
-- `d2e654f` — code review: README, AGENTS.md, handoff-actual.md actualizados
-- `e63cd52` — revision docs created
+- `dd9c474` — constelaciones v2: genograma, rueda sistémica, frases por capas, patrones, IA, persistencia BD
+- `307b3d6` — TabRueda: rueda constelacional animada
+- `d2e654f` — TabFrases: secciones expandibles + selector de miembro
 
-### SHA actual: `b470678` (más reciente tras ponytail cuts commit)
+### Conocido
+- El CI (`build-apk.yml`) solo compila APK `--debug` y sube artifact: **no firma ni crea releases** (las releases se crean a mano con `gh release create`)
+- El SHA `b470678` que citaba el resumen anterior NO existe en el repositorio

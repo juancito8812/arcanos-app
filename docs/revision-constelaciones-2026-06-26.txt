@@ -4,6 +4,12 @@ REVISIÓN DE CÓDIGO - CONSTELACIONES FAMILIARES
 
 FECHA: 26/06/2026
 
+NOTA (2026-10-12): documento HISTORICO. Los "problemas identificados" de esta
+revision ya fueron resueltos en la v2 de constelaciones: FamilyMember esta en uso
+(toMap/fromMap), la rueda esta integrada con numerologia, hay interpretacion IA
+(ConstellationService) y persistencia en BD (constellation_members /
+constellation_sessions). El estado actual esta en docs/handoff-actual.md.
+
 ================================================================
 1. ARCHIVOS PRINCIPALES
 ================================================================

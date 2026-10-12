@@ -3,6 +3,12 @@
 **Fecha:** 26/06/2026
 **Versión:** 2.2.1+6
 
+> **Nota (2026-10-12):** documento histórico de la revisión del 26/06/2026. Varios datos
+> quedaron desactualizados: hoy el proyecto está en **v2.3.0+8**, `DatabaseService` tiene
+> **6 tablas** (no 4: se agregaron `constellation_members` y `constellation_sessions`) y
+> `constellation_screen.dart` fue refactorizado a v2 (6 tabs modulares en `tabs/`).
+> Se conserva como registro histórico.
+
 ---
 
 ## 1. TECNOLOGÍAS Y ENTORNO
