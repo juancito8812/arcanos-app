@@ -84,7 +84,7 @@ class _TabFrasesState extends State<TabFrases> {
       padding: const EdgeInsets.all(16),
       children: [
         DropdownButtonFormField<int?>(
-          value: _selectedMember == null ? null : _miembros.indexOf(_selectedMember!),
+          initialValue: _selectedMember == null ? null : _miembros.indexOf(_selectedMember!),
           decoration: const InputDecoration(
             labelText: 'Selecciona un miembro familiar',
             prefixIcon: Icon(Icons.person),

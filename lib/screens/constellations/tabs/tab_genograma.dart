@@ -89,7 +89,7 @@ class _TabGenogramaState extends State<TabGenograma> {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
-                  value: _relaciones.contains(relacion) ? relacion : 'Otro',
+                  initialValue: _relaciones.contains(relacion) ? relacion : 'Otro',
                   decoration: const InputDecoration(
                     labelText: 'Relacion',
                     prefixIcon: Icon(Icons.family_restroom),
@@ -99,7 +99,7 @@ class _TabGenogramaState extends State<TabGenograma> {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<int>(
-                  value: generacion,
+                  initialValue: generacion,
                   decoration: const InputDecoration(
                     labelText: 'Generacion',
                     prefixIcon: Icon(Icons.account_tree),

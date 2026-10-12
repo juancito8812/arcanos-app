@@ -202,7 +202,7 @@ class _TabRuedaState extends State<TabRueda> with TickerProviderStateMixin {
                 const SizedBox(width: 8),
                 Expanded(
                   child: DropdownButtonFormField<FamilyMember>(
-                    value: _selecciones[pos],
+                    initialValue: _selecciones[pos],
                     isExpanded: true,
                     decoration: const InputDecoration(
                       hintText: 'Seleccionar miembro...',
