@@ -24,6 +24,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final _baseUrlController = TextEditingController();
   final _modelController = TextEditingController();
   bool _notificationsEnabled = true;
+  bool _ocultarApiKey = true;
   String _appVersion = '';
 
   @override
@@ -166,6 +167,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _apiField('Modelo', 'gpt-4o-mini', _modelController, 'arcano_ai_model'),
       const SizedBox(height: 12),
       _apiKeyField(),
+      Align(
+        alignment: Alignment.centerRight,
+        child: TextButton.icon(
+          onPressed: () async {
+            await _guardarApiKey(_apiKeyController.text);
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString('arcano_ai_base_url', _baseUrlController.text.trim());
+            await prefs.setString('arcano_ai_model', _modelController.text.trim());
+          },
+          icon: const Icon(Icons.save, size: 18),
+          label: const Text('Guardar'),
+        ),
+      ),
       const SizedBox(height: 8),
       const Text('Compatible con OpenAI, Anthropic, Google, Ollama y cualquier API compatible con OpenAI.',
         style: TextStyle(fontSize: 11, color: Colors.grey)),
@@ -175,21 +189,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _apiKeyField() {
     return TextField(
       controller: _apiKeyController,
+      obscureText: _ocultarApiKey,
+      autocorrect: false,
+      enableSuggestions: false,
       decoration: InputDecoration(
         labelText: 'API Key',
         hintText: 'sk-...',
         isDense: true,
+        suffixIcon: IconButton(
+          tooltip: _ocultarApiKey ? 'Mostrar' : 'Ocultar',
+          icon: Icon(_ocultarApiKey ? Icons.visibility_off : Icons.visibility, size: 20),
+          onPressed: () => setState(() => _ocultarApiKey = !_ocultarApiKey),
+        ),
       ),
-      onSubmitted: (v) async {
-        final storage = FlutterSecureStorage();
-        await storage.write(key: 'arcano_ai_key', value: v);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('API Key guardada')),
-          );
-        }
-      },
+      onSubmitted: (v) => _guardarApiKey(v),
     );
+  }
+
+  Future<void> _guardarApiKey(String v) async {
+    final storage = FlutterSecureStorage();
+    await storage.write(key: 'arcano_ai_key', value: v.trim());
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('API Key guardada')),
+      );
+    }
   }
 
   Widget _apiField(String label, String hint, TextEditingController ctrl, String prefKey) {
@@ -331,21 +355,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     final file = await UpdateService.downloadApk(
       _updateInfo!.downloadUrl,
+      sha256Url: _updateInfo!.sha256Url,
       onProgress: (progress) {
         if (mounted) setState(() => _downloadProgress = progress);
       },
     );
 
     if (file == null || !mounted) {
-      setState(() {
-        _updateStatus = UpdateStatus.error;
-        _updateInfo = null;
-      });
+      if (mounted) {
+        setState(() {
+          _updateStatus = UpdateStatus.error;
+          _updateInfo = null;
+        });
+      }
       return;
     }
 
     setState(() => _updateStatus = UpdateStatus.installing);
-    await UpdateService.installApk(file.path);
+    bool instalado = false;
+    try {
+      instalado = await UpdateService.installApk(file.path);
+    } catch (_) {
+      instalado = false;
+    } finally {
+      // Sin esto el spinner de "Instalando..." quedaba eterno si el
+      // instalador fallaba (permiso denegado, APK corrupto, etc).
+      if (mounted) {
+        setState(() => _updateStatus = instalado ? UpdateStatus.idle : UpdateStatus.error);
+      }
+    }
   }
 
   void _borrar(BuildContext c) {

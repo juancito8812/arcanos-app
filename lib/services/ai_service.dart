@@ -18,13 +18,22 @@ class AIService {
 
   static Future<String?> getApiKey() async {
     if (_buildTimeKey != null && _buildTimeKey!.isNotEmpty) return _buildTimeKey;
-    final key = await _secureStorage.read(key: 'arcano_ai_key');
+    String? key;
+    try {
+      key = await _secureStorage.read(key: 'arcano_ai_key');
+    } catch (_) {
+      // En tests, escritorio o web no hay keystore nativo: el plugin lanza
+      // MissingPluginException y tumbaba la interpretacion entera. Degradamos.
+      key = null;
+    }
     if (key != null && key.isNotEmpty) return key;
     final prefs = await SharedPreferences.getInstance();
     final oldKey = prefs.getString('arcano_ai_key');
     if (oldKey != null && oldKey.isNotEmpty) {
-      await _secureStorage.write(key: 'arcano_ai_key', value: oldKey);
-      await prefs.remove('arcano_ai_key');
+      try {
+        await _secureStorage.write(key: 'arcano_ai_key', value: oldKey);
+        await prefs.remove('arcano_ai_key');
+      } catch (_) {}
     }
     return oldKey;
   }

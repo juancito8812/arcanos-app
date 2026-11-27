@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../theme.dart';
 import '../../../models/family_member.dart';
 import '../../../services/database_service.dart';
+import '../../../services/constellation_service.dart';
 import '../../../utils/animated_widgets.dart';
 
 class TabGenograma extends StatefulWidget {
@@ -186,11 +187,23 @@ class _TabGenogramaState extends State<TabGenograma> {
       return;
     }
 
+    // El arcano del familiar se calcula con nombre + fecha de nacimiento.
+    // Antes se guardaba siempre null, y por eso el tab de patrones
+    // transgeneracionales descartaba a todos los miembros.
+    final borrador = FamilyMember(
+      nombre: result['nombre'],
+      relacion: result['relacion'],
+      fechaNacimiento: result['fechaNacimiento'],
+    );
+    final arcanoCalculado =
+        ConstellationService.arcanoDesdeMiembro(borrador)?.numero;
+
     final member = FamilyMember(
       id: miembro?.id,
       nombre: result['nombre'],
       relacion: result['relacion'],
       generacion: result['generacion'],
+      arcanoNumero: arcanoCalculado ?? miembro?.arcanoNumero,
       eventos: List<String>.from(result['eventos']),
       fechaNacimiento: result['fechaNacimiento'],
       fechaEvento: result['fechaEvento'],

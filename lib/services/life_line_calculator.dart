@@ -18,8 +18,8 @@ class LifeLineCalculator {
 
     // Arcano 3 - MENTE: Reducir el total de la fecha a un solo digito (1-9)
     int a3 = a2;
-    // Siempre reducir a digito unico (1-9), respetando 11,22
-    while (a3 > 9 && a3 != 11 && a3 != 22) {
+    // Reducir a digito unico, conservando el 11 como numero maestro
+    while (a3 > 9 && a3 != 11) {
       int s = 0;
       int t = a3;
       while (t > 0) { s += t % 10; t ~/= 10; }
@@ -45,10 +45,11 @@ class LifeLineCalculator {
   }
 
   static ArcanoPosicion _makePos(int pos, int num, String nom, String edad, String sig) {
-    final info = getArcanoByNumero(num);
+    final numero = reducirAArcano(num);
+    final info = getArcanoByNumero(numero);
     return ArcanoPosicion(
       posicion: pos, nombre: nom,
-      arcano: ArcanoInfo(numero: num, nombre: info?.nombre ?? 'Desconocido', nombreRomano: info?.nombreRomano ?? num.toString()),
+      arcano: ArcanoInfo(numero: numero, nombre: info?.nombre ?? 'Desconocido', nombreRomano: info?.nombreRomano ?? numero.toString()),
       edadPeriodo: edad, significado: sig,
     );
   }

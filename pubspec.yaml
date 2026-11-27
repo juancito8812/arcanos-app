@@ -1,7 +1,7 @@
 name: arcanos_mayores
 description: PsicoTarot - Arcanos Mayores App
 publish_to: 'none'
-version: 2.3.0+8
+version: 2.4.1+20401
 
 environment:
   sdk: ^3.7.2
@@ -27,6 +27,9 @@ dependencies:
   shared_preferences: ^2.3.0
   flutter_secure_storage: ^9.2.4
   timezone: ^0.9.4
+  flutter_timezone: ^4.1.1
+  crypto: ^3.0.6
+  convert: ^3.1.1
 
 dev_dependencies:
   flutter_test:

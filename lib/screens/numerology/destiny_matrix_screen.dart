@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:arcanos_mayores/models/destiny_matrix.dart';
 import 'package:arcanos_mayores/services/destiny_matrix_calculator.dart';
 import 'package:arcanos_mayores/services/database_service.dart';
+import 'package:arcanos_mayores/screens/numerology/personal_numbers_screen.dart';
 import 'package:arcanos_mayores/theme.dart';
 
 class DestinyMatrixScreen extends StatefulWidget {
@@ -75,6 +76,15 @@ class _DestinyMatrixScreenState extends State<DestinyMatrixScreen> with WidgetsB
     return Scaffold(
       appBar: AppBar(
         title: const Text('Matriz del Destino'),
+        actions: [
+          IconButton(
+            tooltip: 'Numerologia Personal',
+            icon: const Icon(Icons.calculate_outlined),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const PersonalNumbersScreen()),
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),

@@ -38,24 +38,36 @@ class _DailyCardBannerState extends State<DailyCardBanner> {
 
   Future<void> _generateCard() async {
     setState(() { _loading = true; });
-    final perfiles = await DatabaseService.obtenerPerfiles();
-    final hasProfile = perfiles.isNotEmpty;
-    DailyCard card;
+    DailyCard? card;
+    try {
+      final perfiles = await DatabaseService.obtenerPerfiles();
+      final hasProfile = perfiles.isNotEmpty;
 
-    if (hasProfile) {
-      final first = perfiles.first;
-      final birthDate = DateTime.parse(first['fechaNacimiento'] as String);
-      final age = DateTime.now().year - birthDate.year;
-      final arcanos = [first['arcano1'], first['arcano2'], first['arcano3'], first['arcano4'], first['arcano5']]
-          .whereType<int>().toList();
-      card = await DailyCardService.generateDailyCard(
-        hasProfile: true, ageYears: age, profileArcanos: arcanos);
-    } else {
-      card = await DailyCardService.generateDailyCard(hasProfile: false);
+      if (hasProfile) {
+        final first = perfiles.first;
+        final rawFecha = first['fechaNacimiento'] as String?;
+        final birthDate = rawFecha == null ? null : DateTime.tryParse(rawFecha);
+        final age = birthDate == null ? null : DateTime.now().year - birthDate.year;
+        final arcanos = [first['arcano1'], first['arcano2'], first['arcano3'], first['arcano4'], first['arcano5']]
+            .whereType<int>().toList();
+        card = await DailyCardService.generateDailyCard(
+          hasProfile: true, ageYears: age, profileArcanos: arcanos);
+      } else {
+        card = await DailyCardService.generateDailyCard(hasProfile: false);
+      }
+
+      // Guardar la carta ANTES de pedir la interpretacion: updateInterpretation
+      // es un UPDATE por fecha y con la fila inexistente afectaba 0 filas.
+      await DailyCardService.saveCard(card);
+    } catch (_) {
+      if (mounted) setState(() { _loading = false; });
+      return;
     }
 
+    final generada = card;
+    if (!mounted) return;
     setState(() {
-      _card = card;
+      _card = generada;
       _loading = false;
       _generatingInterpretation = true;
     });
@@ -63,18 +75,19 @@ class _DailyCardBannerState extends State<DailyCardBanner> {
     final apiKey = const String.fromEnvironment('ARCANO_AI_KEY', defaultValue: '');
     AIService.setBuildTimeKey(apiKey.isEmpty ? null : apiKey);
     try {
-      final interpretation = await AIService.interpretDailyCardByNumero(card.arcanoNumero, card.arcanoNombre);
+      final interpretation = await AIService.interpretDailyCardByNumero(generada.arcanoNumero, generada.arcanoNombre);
       if (!interpretation.startsWith('Conectate')) {
-        await DailyCardService.updateInterpretation(card.arcanoNumero, interpretation);
+        await DailyCardService.updateInterpretation(generada.arcanoNumero, interpretation);
         final updated = await DailyCardService.getTodayCard();
-        if (updated != null) {
+        if (updated != null && mounted) {
           setState(() { _card = updated; });
         }
       }
-    } catch (_) {}
-
-    await DailyCardService.saveCard(_card!);
-    setState(() { _generatingInterpretation = false; });
+    } catch (_) {
+      // Sin IA la carta sigue siendo visible; el error no debe romper el banner.
+    } finally {
+      if (mounted) setState(() { _generatingInterpretation = false; });
+    }
   }
 
   @override

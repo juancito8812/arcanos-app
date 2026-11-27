@@ -2,7 +2,7 @@ name: Build APK
 
 on:
   push:
-    branches: [main, master, feature/*]
+    branches: [main, master, 'feature/**', 'fix/**']
   pull_request:
     branches: [main, master]
 
@@ -14,20 +14,33 @@ jobs:
 
       - uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: 'temurin'
           java-version: '17'
 
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
 
       - run: flutter pub get
 
-      - run: flutter analyze
+      # Los infos de estilo no bloquean; errores y warnings si.
+      - run: flutter analyze --no-fatal-infos
 
-      - run: flutter build apk --debug
+      # Antes el CI solo compilaba en debug: los tests estaban rotos y nadie lo sabia.
+      - run: flutter test --reporter expanded
+
+      - run: flutter build apk --release
+
+      - name: Publicar hash del APK
+        run: |
+          cd build/app/outputs/flutter-apk
+          sha256sum app-release.apk | tee app-release.apk.sha256
 
       - uses: actions/upload-artifact@v4
         with:
-          name: app-debug-apk
-          path: build/app/outputs/flutter-apk/app-debug.apk
+          name: app-release-apk
+          path: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/flutter-apk/app-release.apk.sha256
+          if-no-files-found: error

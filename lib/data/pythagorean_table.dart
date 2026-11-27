@@ -17,20 +17,28 @@ int calcularValorNombre(String nombre) {
   return total;
 }
 
-int reduccionTeosofica(int numero) {
-  if (numero == 11 || numero == 22) return numero;
-  if (numero >= 1 && numero <= 22) return numero;
-  int n = numero;
-  while (n > 22) {
+/// Reduce cualquier numero al rango real de los 22 arcanos mayores (0-21).
+///
+/// El 22 no existe como carta: `arcano_22.jpg` no esta en assets y
+/// [getArcanoByNumero] devuelve null, lo que producia "Desconocido".
+/// El 22 se interpreta como El Loco (0), y el 0 tambien es El Loco.
+/// El 11 (La Fuerza) se conserva porque es un arcano valido.
+int reducirAArcano(int numero) {
+  int n = numero.abs();
+  if (n <= 21) return n;
+  if (n == 22) return 0;
+  while (n > 21) {
     int s = 0;
     int t = n;
     while (t > 0) { s += t % 10; t ~/= 10; }
+    if (s == n) break;
     n = s;
-    if (n == 11 || n == 22) break;
   }
-  if (n == 22) return 0;
-  return n;
+  return n == 22 ? 0 : n;
 }
+
+/// Alias historico usado por la tabla pitagorica.
+int reduccionTeosofica(int numero) => reducirAArcano(numero);
 
 int sumarDigitosFecha(int dia, int mes, int anno) {
   int suma = 0;

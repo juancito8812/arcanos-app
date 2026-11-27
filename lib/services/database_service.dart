@@ -15,13 +15,14 @@ class DatabaseService {
   static Future<Database> _initDatabase() async {
     final dbPath = await getDatabasesPath();
     final path = p.join(dbPath, 'psicotarot.db');
-    return openDatabase(path, version: 3, onCreate: (db, v) async {
+    return openDatabase(path, version: 4, onCreate: (db, v) async {
       await db.execute('CREATE TABLE perfiles (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT NOT NULL, fechaNacimiento TEXT NOT NULL, arcano1 INTEGER, arcano2 INTEGER, arcano3 INTEGER, arcano4 INTEGER, arcano5 INTEGER, fechaCreacion TEXT NOT NULL)');
       await db.execute('CREATE TABLE tiradas (id INTEGER PRIMARY KEY AUTOINCREMENT, tipo TEXT NOT NULL, fecha TEXT NOT NULL, cartas TEXT NOT NULL, interpretacion TEXT)');
       await db.execute('CREATE TABLE regresiones (id INTEGER PRIMARY KEY AUTOINCREMENT, titulo TEXT NOT NULL, contenido TEXT, fecha TEXT NOT NULL, tipo TEXT NOT NULL)');
       await db.execute('CREATE TABLE daily_cards (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT NOT NULL, arcano_numero INTEGER NOT NULL, arcano_nombre TEXT NOT NULL, arcano_nombre_romano TEXT NOT NULL, ai_interpretation TEXT, has_profile INTEGER NOT NULL DEFAULT 0, fecha_creacion TEXT NOT NULL DEFAULT (datetime(\'now\')))');
       await db.execute('CREATE TABLE constellation_members (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT NOT NULL, relacion TEXT NOT NULL, generacion INTEGER NOT NULL DEFAULT 0, arcano_numero INTEGER, eventos TEXT, fecha_nacimiento TEXT, fecha_evento TEXT, pos_x REAL NOT NULL DEFAULT 0, pos_y REAL NOT NULL DEFAULT 0)');
       await db.execute('CREATE TABLE constellation_sessions (id INTEGER PRIMARY KEY AUTOINCREMENT, tema TEXT NOT NULL, posiciones TEXT NOT NULL, interpretacion_ia TEXT, frase_aplicada TEXT, fecha_creacion TEXT NOT NULL)');
+      await db.execute('CREATE TABLE consultas_numerologia (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT NOT NULL, fechaNacimiento TEXT NOT NULL, numeroVida INTEGER, anoPersonal INTEGER, fechaConsulta TEXT NOT NULL)');
     }, onUpgrade: (db, oldV, newV) async {
       if (oldV < 2) {
         await db.execute('CREATE TABLE IF NOT EXISTS daily_cards (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT NOT NULL, arcano_numero INTEGER NOT NULL, arcano_nombre TEXT NOT NULL, arcano_nombre_romano TEXT NOT NULL, ai_interpretation TEXT, has_profile INTEGER NOT NULL DEFAULT 0, fecha_creacion TEXT NOT NULL DEFAULT (datetime(\'now\')))');
@@ -29,6 +30,9 @@ class DatabaseService {
       if (oldV < 3) {
         await db.execute('CREATE TABLE IF NOT EXISTS constellation_members (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT NOT NULL, relacion TEXT NOT NULL, generacion INTEGER NOT NULL DEFAULT 0, arcano_numero INTEGER, eventos TEXT, fecha_nacimiento TEXT, fecha_evento TEXT, pos_x REAL NOT NULL DEFAULT 0, pos_y REAL NOT NULL DEFAULT 0)');
         await db.execute('CREATE TABLE IF NOT EXISTS constellation_sessions (id INTEGER PRIMARY KEY AUTOINCREMENT, tema TEXT NOT NULL, posiciones TEXT NOT NULL, interpretacion_ia TEXT, frase_aplicada TEXT, fecha_creacion TEXT NOT NULL)');
+      }
+      if (oldV < 4) {
+        await db.execute('CREATE TABLE IF NOT EXISTS consultas_numerologia (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT NOT NULL, fechaNacimiento TEXT NOT NULL, numeroVida INTEGER, anoPersonal INTEGER, fechaConsulta TEXT NOT NULL)');
       }
     });
   }
@@ -42,6 +46,9 @@ class DatabaseService {
   static Future<List<Map<String, dynamic>>> obtenerHistorialCartas() async { final db = await database; return db.query('daily_cards', orderBy: 'fecha_creacion DESC', limit: 30); }
 
   static Future<void> eliminarMiembroConstelacion(int id) async { final db = await database; await db.delete('constellation_members', where: 'id = ?', whereArgs: [id]); }
+
+  static Future<int> guardarConsultaNumerologia(Map<String, dynamic> consulta) async { final db = await database; return db.insert('consultas_numerologia', consulta); }
+  static Future<List<Map<String, dynamic>>> obtenerConsultasNumerologia() async { final db = await database; return db.query('consultas_numerologia', orderBy: 'fechaConsulta DESC'); }
 
   static Future<int> guardarMiembroConstelacion(FamilyMember m) async {
     final db = await database;

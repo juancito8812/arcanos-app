@@ -1,17 +1,13 @@
 import 'package:arcanos_mayores/data/arcanos_data.dart';
+import 'package:arcanos_mayores/data/pythagorean_table.dart';
 import 'package:arcanos_mayores/models/arcano.dart';
 import 'package:arcanos_mayores/models/destiny_matrix.dart';
 
 class DestinyMatrixCalculator {
-  static Arcano reduce(int value) {
-    int v = value;
-    if (v == 22 || v == 0) v = 21;
-    while (v > 21) {
-      v = v.toString().split('').map((d) => int.parse(d)).reduce((a, b) => a + b);
-      if (v == 22 || v == 0) v = 21;
-    }
-    return allArcanos[v];
-  }
+  /// El 22 y el 0 son El Loco (arcano 0), igual que en la tabla pitagorica.
+  /// Antes el 22 caia en La Fuerza (21) y la misma persona salia con dos
+  /// arcanos distintos segun la pantalla.
+  static Arcano reduce(int value) => allArcanos[reducirAArcano(value)];
 
   static DestinyMatrix calculate(DateTime birthDate) {
     final day = birthDate.day;

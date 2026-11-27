@@ -1,0 +1,205 @@
+name: Release APK automático
+
+# Publica la APK nueva como GitHub Release (tag vX.Y.Z) con:
+#   - app-release.apk
+#   - app-release.apk.sha256
+# La app instalada consulta /releases/latest, ve que hay versión nueva y le
+# ofrece al usuario descargarla e instalarla (ver lib/services/update_service.dart).
+#
+# Disparadores:
+#   1. push de un tag v*        → publica esa versión
+#   2. workflow_dispatch        → publica la versión indicada, o hace bump
+#
+# Firma: la APK se firma con el MISMO keystore que los builds hechos en el
+# homelab (secrets.ANDROID_KEYSTORE_BASE64). Si la firma cambia, la APK no se
+# instala encima de la que el usuario ya tiene y el sistema de actualización
+# queda inservible. El paso "Verificar firma" aborta el release si el
+# certificado no coincide con ANDROID_CERT_SHA256.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versión a publicar (ej: 2.4.1). Vacío = bump automático'
+        required: false
+        type: string
+      bump_type:
+        description: 'Tipo de bump si no se indica versión'
+        required: false
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-apk
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build y release
+    runs-on: ubuntu-latest
+    env:
+      # Huella del keystore de distribución. Si cambia, nadie puede actualizar.
+      ANDROID_CERT_SHA256: '7c5a29c2b732d36de9b568c3cd56bc260aef1fe7182b0ddca18e3808b5b8023c'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # Versión fijada: la misma con la que se compila en el homelab, para que
+      # el APK del CI y el local salgan del mismo toolchain.
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.2'
+          channel: stable
+          cache: true
+
+      - name: Restaurar keystore de firma
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.ARCA_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.ARCA_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ARCA_KEY_ALIAS }}
+        run: |
+          if [ -z "$KEYSTORE_B64" ]; then
+            echo "::error::Falta el secret ANDROID_KEYSTORE_BASE64. Sin keystore la APK sale firmada con el debug key de GitHub y no se podrá instalar encima de la versión actual."
+            exit 1
+          fi
+          echo "$KEYSTORE_B64" | base64 -d > android/app/upload-keystore.jks
+          cat > android/key.properties <<EOF
+          storePassword=$STORE_PASSWORD
+          keyPassword=$KEY_PASSWORD
+          keyAlias=$KEY_ALIAS
+          EOF
+          ls -l android/app/upload-keystore.jks
+
+      - name: Determinar versión
+        id: version
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+          INPUT_BUMP: ${{ github.event.inputs.bump_type }}
+          REF_NAME: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+          CURRENT=$(grep -E '^version:' pubspec.yaml | awk '{print $2}' | cut -d+ -f1)
+          if [ -n "${INPUT_VERSION:-}" ]; then
+            VERSION="$INPUT_VERSION"
+          elif [[ "$REF_NAME" == refs/tags/v* ]]; then
+            VERSION="${REF_NAME#refs/tags/v}"
+          else
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+            case "${INPUT_BUMP:-patch}" in
+              major) VERSION="$((MAJOR+1)).0.0" ;;
+              minor) VERSION="$MAJOR.$((MINOR+1)).0" ;;
+              *)     VERSION="$MAJOR.$MINOR.$((PATCH+1))" ;;
+            esac
+          fi
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Versión inválida: '$VERSION' (se espera X.Y.Z)"
+            exit 1
+          fi
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+          # versionCode monótono: 2.4.1 → 20401
+          BUILD=$((MAJOR*10000 + MINOR*100 + PATCH))
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+          echo "build=$BUILD" >> "$GITHUB_OUTPUT"
+          echo "📦 v$VERSION (+$BUILD), pubspec estaba en $CURRENT"
+
+      - name: Escribir versión en pubspec.yaml
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          BUILD: ${{ steps.version.outputs.build }}
+        run: |
+          sed -i -E "s/^version:.*/version: ${VERSION}+${BUILD}/" pubspec.yaml
+          grep -E '^version:' pubspec.yaml
+
+      - name: Dependencias
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+
+      - name: Tests
+        run: flutter test --reporter expanded
+
+      - name: Build APK release
+        run: flutter build apk --release
+
+      - name: Verificar firma del APK
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          APK=build/app/outputs/flutter-apk/app-release.apk
+          APKSIGNER=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)
+          ACTUAL=$("$APKSIGNER" verify --print-certs "$APK" 2>/dev/null \
+            | grep 'certificate SHA-256 digest' | head -1 | awk '{print $NF}')
+          echo "🔐 Firma APK:      $ACTUAL"
+          echo "🔑 Firma esperada: $ANDROID_CERT_SHA256"
+          if [ "$ACTUAL" != "$ANDROID_CERT_SHA256" ]; then
+            echo "::error::Firma distinta a la de distribución: la APK no se instalaría encima de la versión actual. Release abortado."
+            exit 1
+          fi
+          ls -lh "$APK"
+
+      - name: Calcular SHA-256 del APK
+        run: |
+          cd build/app/outputs/flutter-apk
+          sha256sum app-release.apk | tee app-release.apk.sha256
+          # el .sha256 va con el nombre del asset tal cual se sube
+          sha256sum app-release.apk | awk '{print $1}' > app-release.apk.sha256
+          cat app-release.apk.sha256
+
+      - name: Publicar release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          set -euo pipefail
+          NOTES=$(git log -1 --pretty=format:'%s%n%n%b')
+          if gh release view "$TAG" --json tagName >/dev/null 2>&1; then
+            echo "🟡 $TAG ya existe — actualizando"
+            gh release edit "$TAG" --title "v$VERSION" --notes "$NOTES" --latest
+          else
+            gh release create "$TAG" --title "v$VERSION" --notes "$NOTES" \
+              --target "$GITHUB_SHA" --latest
+          fi
+          gh release upload "$TAG" \
+            build/app/outputs/flutter-apk/app-release.apk \
+            build/app/outputs/flutter-apk/app-release.apk.sha256 \
+            --clobber
+          echo "✅ https://github.com/${{ github.repository }}/releases/tag/$TAG"
+
+      - name: Commit del bump de versión
+        continue-on-error: true
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          BUILD: ${{ steps.version.outputs.build }}
+        run: |
+          git config user.name "release-bot[bot]"
+          git config user.email "release-bot[bot]@users.noreply.github.com"
+          git add pubspec.yaml
+          if git diff --cached --quiet; then
+            echo "🟢 pubspec.yaml ya estaba en $VERSION+$BUILD"; exit 0
+          fi
+          git commit -m "chore: bump version a $VERSION+$BUILD [skip ci]"
+          git push origin "HEAD:${{ github.event.repository.default_branch }}"

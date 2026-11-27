@@ -16,9 +16,11 @@ void main() {
       expect(arc.numero, 10);
     });
 
-    test('reduce wraps 22 to 21', () {
+    test('reduce mapea 22 a El Loco (0)', () {
+      // 22 no es una carta: allArcanos solo llega a 21 y el 0 es El Loco.
       final arc = DestinyMatrixCalculator.reduce(22);
-      expect(arc.numero, 21);
+      expect(arc.numero, 0);
+      expect(arc.nombre, 'El Loco');
     });
 
     test('reduce handles multi-step reduction (999 -> 9)', () {

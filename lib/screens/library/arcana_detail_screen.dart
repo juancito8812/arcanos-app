@@ -49,7 +49,7 @@ class _CardImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Hero(
-        tag: 'arcano_\${arcano.numero}',
+        tag: 'arcano_${arcano.numero}',
         child: ClipRRect(
           borderRadius: BorderRadius.circular(20),
           child: Image.asset(
